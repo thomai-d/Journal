@@ -1,0 +1,13 @@
+version: '3.1'
+
+services:
+
+  keycloak:
+    image: jboss/keycloak
+    container_name: keycloak
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: dev
