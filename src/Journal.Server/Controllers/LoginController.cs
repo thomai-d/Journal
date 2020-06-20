@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading.Tasks;
-using Journal.Server.Controllers.Model;
+using Journal.Server.Services.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,10 +14,44 @@ namespace Journal.Server.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        [HttpPost]
-        public async Task<LoginResult> LoginAsync([FromQuery]string user, [FromQuery]string password)
+        private readonly ILoginProvider loginProvider;
+
+        public LoginController(ILoginProvider loginProvider)
         {
-            return new LoginResult();
+            this.loginProvider = loginProvider;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<LoginResult>> LoginAsync([FromBody]LoginParameter param)
+        {
+            if (string.IsNullOrEmpty(param.User)
+             || string.IsNullOrEmpty(param.Password))
+            {
+                return this.BadRequest(new { error = "Username or password empty" });
+            }
+
+            try
+            {
+                var loginResult = await this.loginProvider.LoginAsync(param.User, param.Password);
+                return this.Ok(loginResult);
+            }
+            catch (AuthenticationException)
+            {
+                return this.Unauthorized();
+            }
+        }
+
+        [Authorize]
+        [HttpGet("isAuthenticated")]
+        public bool IsAuthenticated()
+        {
+            return true;
+        }
+
+        public class LoginParameter
+        {
+            public string User { get; set; }
+            public string Password { get; set; }
         }
     }
 }

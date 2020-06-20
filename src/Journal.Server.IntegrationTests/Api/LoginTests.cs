@@ -4,25 +4,77 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Flurl.Http;
+using Newtonsoft.Json;
+using Journal.Server.Controllers;
+using Journal.Server.Services.Authentication;
+using FluentAssertions;
+using System.Net;
 
 namespace Journal.Server.IntegrationTests.Api
 {
-    public class LoginTests : IClassFixture<IntegrationTestHost>
+    public class LoginTests
     {
         private readonly IntegrationTestHost testHost;
-        private readonly HttpClient client;
 
-        public LoginTests(IntegrationTestHost testHost)
+        public LoginTests()
         {
-            this.testHost = testHost;
-            this.client = testHost.CreateDefaultClient();
+            this.testHost = new IntegrationTestHost();
         }
 
         [Fact]
-        public async Task Login_Should_Succeed()
+        public async Task Login_Should_Succeed_With_DevCredentials()
         {
-            var result = await this.client.PostAsync("/api/login", new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("user", "username") }));
-            result.EnsureSuccessStatusCode();
+            var response = await this.testHost.PostAsync("/api/login", new LoginController.LoginParameter
+            {
+                User = "test",
+                Password = "test"
+            });
+
+            var result = await response.As<LoginResult>();
+            result.IdToken.Should().NotBeEmpty();
+            result.RefreshToken.Should().NotBeEmpty();
+            result.AccessToken.Should().NotBeEmpty();
+        }
+        
+        [Fact]
+        public async Task Login_Should_Fail_With_Invalid_Credentials()
+        {
+            var response = await this.testHost.PostAsync("/api/login", new LoginController.LoginParameter
+            {
+                User = "asdjkfl",
+                Password = "ajskldfaksj"
+            });
+
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+        
+        [Fact]
+        public async Task Login_Should_Fail_With_Missing_Credentials()
+        {
+            var response = await this.testHost.PostAsync("/api/login", new { });
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+        
+        [Fact]
+        public async Task Client_Should_Not_Be_Authenticated_Without_Bearer()
+        {
+            var response = await this.testHost.Client.GetAsync("/api/login/isAuthenticated");
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+        
+        [Fact]
+        public async Task Login_Convenience_Method_Should_Succeed()
+        {
+            await this.testHost.LoginAsync();
+        }
+        
+        [Fact]
+        public async Task AuthToken_Should_Have_Some_Fields()
+        {
+            await this.testHost.LoginAsync();
+            this.testHost.AccessToken.Audiences.Should().Contain("journal-api");
         }
     }
 }
