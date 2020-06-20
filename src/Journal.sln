@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journal.Server", "Journal.Server\Journal.Server.csproj", "{AB2E7AC2-0E52-474C-9E93-754B67CB8016}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Journal.Server", "Journal.Server\Journal.Server.csproj", "{AB2E7AC2-0E52-474C-9E93-754B67CB8016}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journal.Server.IntegrationTests", "Journal.Server.IntegrationTests\Journal.Server.IntegrationTests.csproj", "{CE56D809-770B-4B77-AB0F-07767E3B9AAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{AB2E7AC2-0E52-474C-9E93-754B67CB8016}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB2E7AC2-0E52-474C-9E93-754B67CB8016}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB2E7AC2-0E52-474C-9E93-754B67CB8016}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE56D809-770B-4B77-AB0F-07767E3B9AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE56D809-770B-4B77-AB0F-07767E3B9AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE56D809-770B-4B77-AB0F-07767E3B9AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE56D809-770B-4B77-AB0F-07767E3B9AAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
