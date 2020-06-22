@@ -11,6 +11,7 @@ using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace Journal.Server.IntegrationTests
@@ -28,6 +29,11 @@ namespace Journal.Server.IntegrationTests
         public HttpClient Client { get; }
 
         public JwtSecurityToken AccessToken { get; private set; }
+
+        public T GetService<T>()
+        {
+            return this.Services.GetRequiredService<T>();
+        }
 
         public async Task<T> GetAsync<T>(string path)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Journal.Server.DataAccess;
 using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -41,7 +42,9 @@ namespace Journal.Server
             services.AddControllersWithViews();
 
             services.Configure<KeycloakConfiguration>(Configuration.GetSection(nameof(KeycloakConfiguration)));
+            services.Configure<MongoConfiguration>(Configuration.GetSection(nameof(MongoConfiguration)));
             services.AddSingleton<ILoginProvider, KeycloakLoginProvider>();
+            services.AddSingleton<IDocumentRepository, MongoDocumentRepository>();
 
             this.ConfigureCors(services);
             this.ConfigureAuthentication(services);
