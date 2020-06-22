@@ -5,6 +5,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Flurl.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -13,10 +14,12 @@ namespace Journal.Server.Services.Authentication
     public class KeycloakLoginProvider : ILoginProvider
     {
         private readonly KeycloakConfiguration config;
+        private readonly ILogger<KeycloakLoginProvider> logger;
 
-        public KeycloakLoginProvider(IOptions<KeycloakConfiguration> keycloakOptions)
+        public KeycloakLoginProvider(IOptions<KeycloakConfiguration> keycloakOptions, ILogger<KeycloakLoginProvider> logger)
         {
             this.config = keycloakOptions.Value;
+            this.logger = logger;
         }
 
         public async Task<LoginResult> LoginAsync(string username, string password)
@@ -34,6 +37,8 @@ namespace Journal.Server.Services.Authentication
                                     })
                                     .ReceiveJson<KeycloakLoginResult>();
 
+                this.logger.LogInformation("Generated token for {user}", username);
+
                 return new LoginResult()
                 {
                     AccessToken = result.AccessToken,
@@ -43,6 +48,7 @@ namespace Journal.Server.Services.Authentication
             }
             catch (FlurlHttpException ex) when (ex.Call.HttpStatus == HttpStatusCode.Unauthorized)
             {
+                this.logger.LogWarning("Token generation failed for {user}", username);
                 throw new AuthenticationException("Keycloak server returned 401");
             }
         }

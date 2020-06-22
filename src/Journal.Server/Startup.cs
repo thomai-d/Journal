@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -30,6 +31,13 @@ namespace Journal.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+#if !NCRUNCH
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddSeq(Configuration.GetSection("SeqConfiguration"));
+            });
+#endif
+
             services.AddControllersWithViews();
 
             services.Configure<KeycloakConfiguration>(Configuration.GetSection(nameof(KeycloakConfiguration)));
@@ -44,8 +52,10 @@ namespace Journal.Server
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> log)
         {
+            log.LogInformation("Starting journal...");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

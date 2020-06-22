@@ -11,3 +11,12 @@ services:
     environment:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: dev
+
+  seq:
+    image: datalust/seq
+    container_name: seq
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      ACCEPT_EULA: Y
