@@ -1,5 +1,5 @@
 import { Reducer } from 'redux';
-import { AppThunkAction, ApplicationState } from '.';
+import { AppThunkAction } from '.';
 import { login } from '../api/loginApi';
 import jwt_decode from 'jwt-decode';
 
@@ -66,9 +66,3 @@ export const reducer: Reducer<LoginState> = (state: LoginState | undefined, acti
 
   return state;
 }
-
-export const selectors = {
-  isLoggedIn: (state: ApplicationState): boolean => {
-    return !!(state.login && state.login.accessToken);
-  }
-};

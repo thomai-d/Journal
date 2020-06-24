@@ -6,15 +6,11 @@ import Counter from './components/Counter';
 import FetchData from './components/FetchData';
 import NewEntry from './components/NewEntry';
 import { Link } from 'react-router-dom';
-import LoggedInUser from './components/LoggedInUser';
 
 export default () => {
 
   return (
     <Layout>
-        
-        <LoggedInUser></LoggedInUser>
-
         <nav>
             <ul>
                 <li><Link to="/new">Add entry</Link></li>
