@@ -35,7 +35,6 @@ const dispatchToProps = (dispatch: Dispatch<AnyAction>) =>
 type DispatchProps = ReturnType<typeof dispatchToProps>;
 
 class LoginBar extends React.Component<Props & DispatchProps, State> {
-  private userButton: EventTarget | null = null;
 
   constructor(props: any) {
     super(props);

@@ -5,17 +5,13 @@ import Home from './components/Home';
 import Counter from './components/Counter';
 import FetchData from './components/FetchData';
 import NewEntry from './components/NewEntry';
-import { Link } from 'react-router-dom';
+import { CssBaseline } from '@material-ui/core';
 
 export default () => {
 
   return (
     <Layout>
-        <nav>
-            <ul>
-                <li><Link to="/new">Add entry</Link></li>
-            </ul>
-        </nav>
+        <CssBaseline />
 
         <Route exact path='/' component={Home} />
         <Route path='/counter' component={Counter} />
