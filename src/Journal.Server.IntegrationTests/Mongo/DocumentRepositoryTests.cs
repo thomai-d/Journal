@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.Core.Logging;
@@ -29,13 +30,30 @@ namespace Journal.Server.IntegrationTests.Mongo
 
             var doc = new Document
             {
-                Content = "Hallo"
+                Content = "#Hallo, wie gehts?",
+                Author = "test",
+                Created = DateTime.Now
             };
 
             await target.AddAsync(doc);
 
-            var result = await target.GetByIdAsync(doc.Id);
+            var result = await target.GetByIdAsync(doc.Id.ToString());
             result.Content.Should().Be(doc.Content);
+            result.Tags.Should().BeEquivalentTo("Hallo");
+            result.Created.Should().BeCloseTo(doc.Created);
+        }
+        
+        [Fact]
+        public async Task Add_Should_Fail_On_Missing_Data()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+
+            var doc = new Document
+            {
+            };
+
+            Func<Task> act = async () => { await target.AddAsync(doc); };
+            await act.Should().ThrowAsync<ValidationException>();
         }
     }
 }

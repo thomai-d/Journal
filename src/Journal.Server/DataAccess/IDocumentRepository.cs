@@ -11,7 +11,7 @@ namespace Journal.Server.DataAccess
     {
         Task AddAsync(Document doc);
 
-        Task<Document> GetByIdAsync(ObjectId id);
+        Task<Document> GetByIdAsync(string id);
 
         Task<IEnumerable<Document>> FindByTag();
     }

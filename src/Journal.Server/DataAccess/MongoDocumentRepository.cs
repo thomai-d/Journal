@@ -32,7 +32,8 @@ namespace Journal.Server.DataAccess
 
         public async Task AddAsync(Document doc)
         {
-            doc.Created = DateTime.Now;
+            doc.RebuildTags();
+            doc.Validate();
             await this.documents.InsertOneAsync(doc);
             this.logger.LogInformation("Added document {docid}", doc.Id);
         }
@@ -42,12 +43,16 @@ namespace Journal.Server.DataAccess
             throw new NotImplementedException();
         }
 
-        public async Task<Document> GetByIdAsync(ObjectId id)
+        public async Task<Document> GetByIdAsync(string id)
         {
-            return await this.documents.Find(new FilterDefinitionBuilder<Document>()
-                                          .Where(d => d.Id == id))
+            var idObj = new ObjectId(id);
+            var doc = await this.documents.Find(new FilterDefinitionBuilder<Document>()
+                                                    .Where(d => d.Id == idObj))
                                           .Limit(2)
                                           .SingleAsync();
+
+            doc.Created = doc.Created.ToLocalTime();
+            return doc;
         }
     }
 }
