@@ -1,5 +1,9 @@
 # journal
 
+# API documentation
+
+API documentation can be found at http://localhost:5000/swagger/
+
 # Setup development environment
 
 Run `docker-compose up` in the `dev-env` directory.

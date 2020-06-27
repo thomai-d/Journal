@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Journal.Server.Controllers;
+using Journal.Server.Controllers.ApiModel;
 using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -52,7 +53,7 @@ namespace Journal.Server.IntegrationTests
 
         public async Task LoginAsync()
         {
-            var response = await this.PostAsync("/api/login", new LoginController.LoginParameter
+            var response = await this.PostAsync("/api/login", new LoginParameter
             {
                 User = "test",
                 Password = "test"

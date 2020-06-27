@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace Journal.Server.Model
 {
@@ -13,14 +14,19 @@ namespace Journal.Server.Model
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
+        [JsonProperty(Required = Required.DisallowNull)]
         public string Id { get; set; }
 
+        [JsonProperty(Required = Required.DisallowNull)]
         public string Author { get; set; }
 
+        [JsonProperty(Required = Required.DisallowNull)]
         public string Content { get; set; }
 
+        [JsonProperty(Required = Required.DisallowNull)]
         public List<string> Tags { get; set; } = new List<string>();
 
+        [JsonProperty(Required = Required.DisallowNull)]
         public DateTime Created { get; set; }
 
         public void Validate()

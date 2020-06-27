@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using Journal.Server.DataAccess;
 using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,6 +42,12 @@ namespace Journal.Server
 #endif
 
             services.AddControllersWithViews();
+            services.AddSwaggerGen(opt =>
+            {
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                opt.IncludeXmlComments(xmlPath);
+            });
 
             services.Configure<KeycloakConfiguration>(Configuration.GetSection(nameof(KeycloakConfiguration)));
             services.Configure<MongoConfiguration>(Configuration.GetSection(nameof(MongoConfiguration)));
@@ -77,6 +85,12 @@ namespace Journal.Server
             
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(opt =>
+            {
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Journal API V1");
+            });
 
             app.UseRouting();
             app.UseAuthentication();

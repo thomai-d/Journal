@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using Journal.Server.Controllers.ApiModel;
 using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +22,15 @@ namespace Journal.Server.Controllers
             this.loginProvider = loginProvider;
         }
 
+        /// <summary>
+        /// Login with username and password and retrieve access and id token.
+        /// </summary>
+        /// <response code="200">Authentication successful</response>
+        /// <response code="401">Authentication failed</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesErrorResponseType(typeof(void))]
         public async Task<ActionResult<LoginResult>> LoginAsync([FromBody]LoginParameter param)
         {
             if (string.IsNullOrEmpty(param.User)
@@ -41,17 +50,19 @@ namespace Journal.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint to test if the currently provided access token is valid.
+        /// </summary>
+        /// <response code="200">Token is valid</response>
+        /// <response code="401">Token is not valid</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesErrorResponseType(typeof(void))]
         [Authorize]
         [HttpGet("isAuthenticated")]
-        public bool IsAuthenticated()
+        public ActionResult<bool> IsAuthenticated()
         {
             return true;
-        }
-
-        public class LoginParameter
-        {
-            public string User { get; set; }
-            public string Password { get; set; }
         }
     }
 }

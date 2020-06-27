@@ -10,6 +10,7 @@ using Journal.Server.Controllers;
 using Journal.Server.Services.Authentication;
 using FluentAssertions;
 using System.Net;
+using Journal.Server.Controllers.ApiModel;
 
 namespace Journal.Server.IntegrationTests.Api
 {
@@ -25,7 +26,7 @@ namespace Journal.Server.IntegrationTests.Api
         [Fact]
         public async Task Login_Should_Succeed_With_DevCredentials()
         {
-            var response = await this.testHost.PostAsync("/api/login", new LoginController.LoginParameter
+            var response = await this.testHost.PostAsync("/api/login", new LoginParameter
             {
                 User = "test",
                 Password = "test"
@@ -40,7 +41,7 @@ namespace Journal.Server.IntegrationTests.Api
         [Fact]
         public async Task Login_Should_Fail_With_Invalid_Credentials()
         {
-            var response = await this.testHost.PostAsync("/api/login", new LoginController.LoginParameter
+            var response = await this.testHost.PostAsync("/api/login", new LoginParameter
             {
                 User = "asdjkfl",
                 Password = "ajskldfaksj"
