@@ -8,12 +8,15 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
 using Document = Journal.Server.Model.Document;
 
 namespace Journal.Server.DataAccess
 {
     public class MongoDocumentRepository : IDocumentRepository
     {
+        private const string DocumentCollection = "documents";
+
         private readonly MongoClient client;
         private readonly IMongoDatabase database;
         private readonly IMongoCollection<Document> documents;
@@ -26,7 +29,7 @@ namespace Journal.Server.DataAccess
 
             this.client = new MongoClient(config.ConnectionString);
             this.database = client.GetDatabase(config.Database);
-            this.documents = database.GetCollection<Document>("documents");
+            this.documents = database.GetCollection<Document>(DocumentCollection);
             this.logger = logger;
         }
 
@@ -45,11 +48,15 @@ namespace Journal.Server.DataAccess
 
         public async Task<Document> GetByIdAsync(string id)
         {
-            var idObj = new ObjectId(id);
+            if (!ObjectId.TryParse(id, out var idObj))
+                throw new KeyNotFoundException($"ObjectId {id} is not valid");
+
             var doc = await this.documents.Find(new FilterDefinitionBuilder<Document>()
-                                                    .Where(d => d.Id == idObj))
+                                                    .Where(d => d.Id == id))
                                           .Limit(2)
-                                          .SingleAsync();
+                                          .SingleOrDefaultAsync();
+            if (doc == null)
+                throw new KeyNotFoundException($"{id} does not exist in {DocumentCollection}");
 
             doc.Created = doc.Created.ToLocalTime();
             return doc;

@@ -66,6 +66,12 @@ namespace Journal.Server.IntegrationTests
             var handler = new JwtSecurityTokenHandler();
             this.AccessToken = handler.ReadToken(result.AccessToken) as JwtSecurityToken;
         }
+
+        public void Logout()
+        {
+            this.Client.DefaultRequestHeaders.Clear();
+            this.AccessToken = null;
+        }
         
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
