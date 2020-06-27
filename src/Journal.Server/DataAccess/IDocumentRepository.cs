@@ -11,8 +11,10 @@ namespace Journal.Server.DataAccess
     {
         Task AddAsync(Document doc);
 
-        Task<Document> GetByIdAsync(string id);
+        Task<Document> GetByIdAsync(string author, string id);
 
-        Task<IEnumerable<Document>> FindByTag();
+        Task<List<Document>> GetByTagsAsync(string author, int limit, params string[] tags);
+
+        Task DeleteAllDocumentsFromAuthorAsync(string author);
     }
 }

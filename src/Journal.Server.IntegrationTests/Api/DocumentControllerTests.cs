@@ -7,6 +7,8 @@ using System.Net;
 using Newtonsoft.Json.Linq;
 using Journal.Server.DataAccess;
 using Journal.Server.Model;
+using Microsoft.AspNetCore.Mvc.Core.Infrastructure;
+using System.Linq;
 
 namespace Journal.Server.IntegrationTests.Api
 {
@@ -42,7 +44,7 @@ namespace Journal.Server.IntegrationTests.Api
 
             // Document properties should have been set.
             var docRepo = this.testHost.GetService<IDocumentRepository>();
-            var persistedDoc = await docRepo.GetByIdAsync(objId);
+            var persistedDoc = await docRepo.GetByIdAsync("test", objId);
             persistedDoc.Content.Should().Be("Hallo das ist ein #Test");
             persistedDoc.Author.Should().Be("test");
             persistedDoc.Created.Should().BeCloseTo(DateTime.Now, 1000);
@@ -102,6 +104,27 @@ namespace Journal.Server.IntegrationTests.Api
         {
             var response = await this.testHost.Client.PostAsync("/api/document", new StringContent("{ Content = \"Hallo\" }"));
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+        
+        [Fact]
+        public async Task Find_By_Tags_Test()
+        {
+            await this.testHost.LoginAsync();
+            var docRepo = this.testHost.GetService<IDocumentRepository>();
+            await docRepo.DeleteAllDocumentsFromAuthorAsync("test");
+
+            await this.testHost.PostAsync("/api/document", new { Content = "Hallo #läuft?" });
+            await this.testHost.PostAsync("/api/document", new { Content = "#a #b #c?" });
+            await this.testHost.PostAsync("/api/document", new { Content = "#b #c #a!" });
+
+            var q1 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Tags = new[] { "a", "b", "c" } });
+            q1.Should().HaveCount(2);
+            
+            var q2 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Tags = new[] { "a", "b", "c" }, Limit = 1 });
+            q2.Should().HaveCount(1);
+            
+            var q3 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Tags = new[] { "z", "b", "c" }, Limit = 1 });
+            q3.Should().HaveCount(0);
         }
     }
 }

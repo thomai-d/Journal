@@ -43,6 +43,13 @@ namespace Journal.Server.IntegrationTests
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(json);
         }
+        
+        public async Task<T> PostAndGetAsync<T>(string path, object data)
+        {
+            var response = await this.PostAsync(path, data);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<T>(json);
+        }
 
         public async Task<HttpResponseMessage> PostAsync(string path, object data)
         {

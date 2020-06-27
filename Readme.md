@@ -1,10 +1,25 @@
 # journal
 
-# API documentation
+Journal-like webapp to easily keep track of varous things.
+
+This project's purpose is to get some experience with the following technologies, as well as work on some basic standards for future projects:
+
+- ASP.NET Core 3.1 on serverside
+- React-Redux + Typescript on clientside
+- Google's Material-UI
+- Docker for test environment
+- MongoDB for persistency
+- Swagger for API documentation
+- Keycloak as OIDC provider
+- XUnit for Unittests
+- Easy-to-write integration tests
+- SEQ for centralized logging
+
+## API documentation
 
 API documentation can be found at http://localhost:5000/swagger/
 
-# Setup development environment
+## Setup development environment
 
 Run `docker-compose up` in the `dev-env` directory.
 
@@ -41,3 +56,12 @@ Get the client secret from keycloak (admin ui > journal realm > clients > api > 
 Get the API key from SEQ and save it: `dotnet user-secrets set SeqConfiguration:ApiKey KPBHP4qxPm2CF8KiE4w6`
 Get the ConnectionString from mongodb and save it: `dotnet user-secrets set MongoConfiguration:ConnectionString mongodb://test:test@localhost?authSource=journal`
 
+
+# Standards
+
+## Backend
+- API Documentation
+- Integration tests for every single API endpoint (Positive result, important errors, security)
+- Simple controllers (only authentication & orchestration of services)
+- Business logic is only within model or service classes
+- Business logic is unit tested

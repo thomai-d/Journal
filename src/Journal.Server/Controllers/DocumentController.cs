@@ -44,7 +44,7 @@ namespace Journal.Server.Controllers
             var url = $"/api/document/{doc.Id}";
             return this.Created(url, new CreateDocumentResult(doc.Id.ToString()));
         }
-        
+
         /// <summary>
         /// Get a document by it's id.
         /// </summary>
@@ -56,20 +56,27 @@ namespace Journal.Server.Controllers
 
             try
             {
-                var doc = await docRepo.GetByIdAsync(id);
-                if (username != doc.Author)
-                {
-                    this.logger.LogWarning("{user} requested document {documentId} from {author}", username, id, doc.Author);
-                    return this.NotFound();
-                }
-
-                return doc;
+                return await this.docRepo.GetByIdAsync(username, id);
             }
             catch (KeyNotFoundException)
             {
                 this.logger.LogWarning("{user} requested nonexisting document {documentId}", username, id);
                 return this.NotFound();
             }
+        }
+
+        /// <summary>
+        /// Retrieves all documents matching the given filter.
+        /// </summary>
+        [HttpPost("query")]
+        /// <response code="200">Returns all matched documents</response>
+        public async Task<ActionResult<Document[]>> PostAsync([FromBody]DocumentQueryFilterParameter filter)
+        {
+            var username = this.GetUserName();
+
+            filter.Normalize();
+            var docs = await this.docRepo.GetByTagsAsync(username, filter.Limit, filter.Tags);
+            return docs.ToArray();
         }
     }
 }

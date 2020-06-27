@@ -14,11 +14,11 @@ using Journal.Server.Controllers.ApiModel;
 
 namespace Journal.Server.IntegrationTests.Api
 {
-    public class LoginTests
+    public class LoginControllerTests
     {
         private readonly IntegrationTestHost testHost;
 
-        public LoginTests()
+        public LoginControllerTests()
         {
             this.testHost = new IntegrationTestHost();
         }

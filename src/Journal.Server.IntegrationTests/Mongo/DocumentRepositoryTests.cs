@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.Core.Logging;
@@ -37,7 +38,7 @@ namespace Journal.Server.IntegrationTests.Mongo
 
             await target.AddAsync(doc);
 
-            var result = await target.GetByIdAsync(doc.Id.ToString());
+            var result = await target.GetByIdAsync("test", doc.Id.ToString());
             result.Content.Should().Be(doc.Content);
             result.Tags.Should().BeEquivalentTo("Hallo");
             result.Created.Should().BeCloseTo(doc.Created);
@@ -54,6 +55,57 @@ namespace Journal.Server.IntegrationTests.Mongo
 
             Func<Task> act = async () => { await target.AddAsync(doc); };
             await act.Should().ThrowAsync<ValidationException>();
+        }
+
+        [Fact]
+        public async Task DeleteAllDocumentsFromAuthor_Should_Work()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+
+            await target.AddAsync(CreateValidDoc());
+            await target.AddAsync(CreateValidDoc());
+            await target.AddAsync(CreateValidDoc());
+            
+            var docs = await target.GetByTagsAsync("test", 10, "Hallo");
+            docs.Count.Should().BeInRange(3, 10);
+
+            await target.DeleteAllDocumentsFromAuthorAsync("test");
+
+            docs = await target.GetByTagsAsync("test", 10, "Hallo");
+            docs.Count.Should().Be(0);
+        }
+        
+        [Fact]
+        public async Task GetByTagsAsync_Should_Work()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+            await target.DeleteAllDocumentsFromAuthorAsync("test");
+
+            await target.AddAsync(CreateValidDoc("#a #b #c"));
+            await target.AddAsync(CreateValidDoc("#a #b #d"));
+            await target.AddAsync(CreateValidDoc("#a #d #f"));
+
+            var docs = await target.GetByTagsAsync("test", 10, "a", "b");
+            docs.Count.Should().Be(2);
+            
+            docs = await target.GetByTagsAsync("test", 1, "a", "b");
+            docs.Count.Should().Be(1);
+            
+            docs = await target.GetByTagsAsync("test", 10, "b", "a");
+            docs.Count.Should().Be(2);
+            
+            docs = await target.GetByTagsAsync("test", 10, "f", "b");
+            docs.Count.Should().Be(0);
+        }
+
+        private static Document CreateValidDoc(string content = "#Hallo wie gehts")
+        {
+            return new Document
+            {
+                Content = content,
+                Author = "test",
+                Created = DateTime.Now
+            };
         }
     }
 }
