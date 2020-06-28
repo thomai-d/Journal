@@ -14,6 +14,7 @@ This project's purpose is to get some experience with the following technologies
 - XUnit for Unittests
 - Easy-to-write integration tests
 - SEQ for centralized logging
+- Test environment automation
 
 ## API documentation
 
@@ -28,14 +29,15 @@ http://localhost:8081 is seq
 http://localhost:8082 is mongo-express
 
 
+### Basic setup
+After the containers have started, run the `Journal.EnvSetup` project for some basic configuration.
+Note the Seq-API-Key and the Keycloak-ClientSecret in the output.
+
 ### Setup keycloak
 
-Run the keycloak docker container and create a new realm `journal`, a client `api` and a user `test` with the password `test`.
+Switch to the `journal` realm.
+Generate a client secret for the `journal-api` and a user `test` with the password `test`.
 The admin password for keycloak is `dev`.
-
-### Setup SEQ
-
-Add an API-Key.
 
 ### Setup user secrets
 
@@ -43,6 +45,9 @@ Get the client secret from keycloak (admin ui > journal realm > clients > api > 
 Get the API key from SEQ and save it: `dotnet user-secrets set SeqConfiguration:ApiKey KPBHP4qxPm2CF8KiE4w6`
 Get the ConnectionString from mongodb and save it: `dotnet user-secrets set MongoConfiguration:ConnectionString mongodb://test:test@localhost?authSource=journal`
 
+### Verify test environment
+
+Run the integration tests to verify the test environment is successfully configured.
 
 # Standards
 
@@ -52,3 +57,7 @@ Get the ConnectionString from mongodb and save it: `dotnet user-secrets set Mong
 - Simple controllers (only authentication & orchestration of services)
 - Business logic is only within model or service classes
 - Business logic is unit tested
+
+## Automation
+- Fully automatic build pipeline
+- Fully automatic test environment setup

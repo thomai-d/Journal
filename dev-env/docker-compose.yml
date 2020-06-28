@@ -9,8 +9,9 @@ services:
     ports:
       - 8080:8080
     environment:
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: dev
+      KEYCLOAK_IMPORT: /tmp/journal-realm.json
+    volumes:
+      - ./journal-realm.json:/tmp/journal-realm.json
 
   seq:
     image: datalust/seq
