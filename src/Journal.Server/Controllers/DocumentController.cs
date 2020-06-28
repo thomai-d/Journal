@@ -75,7 +75,7 @@ namespace Journal.Server.Controllers
             var username = this.GetUserName();
 
             filter.Normalize();
-            var docs = await this.docRepo.GetByTagsAsync(username, filter.Limit, filter.Tags);
+            var docs = await this.docRepo.QueryAsync(username, filter.Limit, filter.Tags);
             return docs.ToArray();
         }
     }

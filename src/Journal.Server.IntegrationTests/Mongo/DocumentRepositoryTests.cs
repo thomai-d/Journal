@@ -66,12 +66,12 @@ namespace Journal.Server.IntegrationTests.Mongo
             await target.AddAsync(CreateValidDoc());
             await target.AddAsync(CreateValidDoc());
             
-            var docs = await target.GetByTagsAsync("test", 10, "Hallo");
+            var docs = await target.QueryAsync("test", 10, "Hallo");
             docs.Count.Should().BeInRange(3, 10);
 
             await target.DeleteAllDocumentsFromAuthorAsync("test");
 
-            docs = await target.GetByTagsAsync("test", 10, "Hallo");
+            docs = await target.QueryAsync("test", 10, "Hallo");
             docs.Count.Should().Be(0);
         }
         
@@ -85,16 +85,16 @@ namespace Journal.Server.IntegrationTests.Mongo
             await target.AddAsync(CreateValidDoc("#a #b #d"));
             await target.AddAsync(CreateValidDoc("#a #d #f"));
 
-            var docs = await target.GetByTagsAsync("test", 10, "a", "b");
+            var docs = await target.QueryAsync("test", 10, "a", "b");
             docs.Count.Should().Be(2);
             
-            docs = await target.GetByTagsAsync("test", 1, "a", "b");
+            docs = await target.QueryAsync("test", 1, "a", "b");
             docs.Count.Should().Be(1);
             
-            docs = await target.GetByTagsAsync("test", 10, "b", "a");
+            docs = await target.QueryAsync("test", 10, "b", "a");
             docs.Count.Should().Be(2);
             
-            docs = await target.GetByTagsAsync("test", 10, "f", "b");
+            docs = await target.QueryAsync("test", 10, "f", "b");
             docs.Count.Should().Be(0);
         }
 

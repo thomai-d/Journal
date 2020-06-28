@@ -13,7 +13,7 @@ namespace Journal.Server.DataAccess
 
         Task<Document> GetByIdAsync(string author, string id);
 
-        Task<List<Document>> GetByTagsAsync(string author, int limit, params string[] tags);
+        Task<List<Document>> QueryAsync(string author, int limit, params string[] tags);
 
         Task DeleteAllDocumentsFromAuthorAsync(string author);
     }

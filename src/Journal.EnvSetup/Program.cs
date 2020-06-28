@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 using Seq.Api;
 using Seq.Api.Model.Inputs;
+using Seq.Api.Model.LogEvents;
 using Seq.Api.Model.Security;
 
 namespace Journal.EnvSetup
@@ -53,6 +54,7 @@ namespace Journal.EnvSetup
                 AssignedPermissions = new HashSet<Permission> { Permission.Ingest },
                 InputSettings = new InputSettingsPart
                 {
+                    MinimumLevel = LogEventLevel.Debug,
                     AppliedProperties = new List<InputAppliedPropertyPart>
                     {
                         new InputAppliedPropertyPart { Name = "app", Value = AppName }

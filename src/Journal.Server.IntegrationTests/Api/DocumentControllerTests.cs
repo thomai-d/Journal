@@ -107,7 +107,7 @@ namespace Journal.Server.IntegrationTests.Api
         }
         
         [Fact]
-        public async Task Find_By_Tags_Test()
+        public async Task Query_Test()
         {
             await this.testHost.LoginAsync();
             var docRepo = this.testHost.GetService<IDocumentRepository>();
@@ -125,6 +125,9 @@ namespace Journal.Server.IntegrationTests.Api
             
             var q3 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Tags = new[] { "z", "b", "c" }, Limit = 1 });
             q3.Should().HaveCount(0);
+            
+            var q4 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Limit = 5 });
+            q4.Should().HaveCount(3);
         }
     }
 }

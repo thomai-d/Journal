@@ -21,6 +21,8 @@ namespace Journal.Server.DataAccess
         private readonly IMongoCollection<Document> documents;
         private readonly ILogger<MongoDocumentRepository> logger;
 
+        private readonly FilterDefinitionBuilder<Document> filterBuilder = new FilterDefinitionBuilder<Document>();
+
         public MongoDocumentRepository(ILogger<MongoDocumentRepository> logger, IOptions<MongoConfiguration> mongoOptions)
         {
             var config = mongoOptions.Value;
@@ -40,9 +42,15 @@ namespace Journal.Server.DataAccess
             this.logger.LogInformation("Added document {docid}", doc.Id);
         }
 
-        public async Task<List<Document>> GetByTagsAsync(string author, int limit, params string[] tags)
+        public async Task<List<Document>> QueryAsync(string author, int limit, params string[] tags)
         {
-            var doc = await this.GetDocumentsForUserAsync(author, filter => filter.All(doc => doc.Tags, tags), limit);
+            var filter = this.filterBuilder.Empty;
+            if (tags.Length > 0)
+            {
+                filter = filterBuilder.All(doc => doc.Tags, tags);
+            }
+
+            var doc = await this.GetDocumentsForUserAsync(author, filter, limit);
             return doc;
         }
 
@@ -51,7 +59,7 @@ namespace Journal.Server.DataAccess
             if (!ObjectId.TryParse(id, out var idObj))
                 throw new KeyNotFoundException($"ObjectId {id} is not valid");
 
-            var docs = await this.GetDocumentsForUserAsync(author, filter => filter.Where(doc => doc.Id == id), limit: 2);
+            var docs = await this.GetDocumentsForUserAsync(author, this.filterBuilder.Where(doc => doc.Id == id), limit: 2);
             if (docs.Count != 1)
                 throw new KeyNotFoundException($"{id} does not exist in {DocumentCollection}");
 
@@ -66,20 +74,17 @@ namespace Journal.Server.DataAccess
             await this.documents.DeleteManyAsync(builder.Empty);
         }
 
-        private async Task<List<Document>> GetDocumentsForUserAsync(string author, Func<FilterDefinitionBuilder<Document>, FilterDefinition<Document>> filter, int limit)
+        private async Task<List<Document>> GetDocumentsForUserAsync(string author, FilterDefinition<Document> filter, int limit)
         {
             var watch = Stopwatch.StartNew();
-            var builder = new FilterDefinitionBuilder<Document>();
-            var filterWithUserRestriction = builder.And(
-                                                     filter(builder),
-                                                     builder.Where(d => d.Author == author));
-
+            var userFilter = this.filterBuilder.Where(d => d.Author == author);
+            var rootFilter = this.filterBuilder.And(userFilter, filter);
             var opt = new FindOptions<Document> { Limit = limit };
-            var cursor = await this.documents.FindAsync(filterWithUserRestriction, opt);
+            var cursor = await this.documents.FindAsync(rootFilter, opt);
             var result = await cursor.ToListAsync();
             watch.Stop();
 
-            this.logger.LogDebug("Find took {ms}ms. Query: {query}", watch.ElapsedMilliseconds, filterWithUserRestriction.FilterToString());
+            this.logger.LogDebug("Find took {ms}ms. Query: {query}", watch.ElapsedMilliseconds, rootFilter.FilterToString());
             return result;
         }
     }
