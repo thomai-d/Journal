@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
-import * as CounterStore from '../store/Counter';
+import * as CounterStore from '../store/CounterStore';
 
 type CounterProps =
     CounterStore.CounterState &

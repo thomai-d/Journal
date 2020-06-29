@@ -1,21 +1,11 @@
 import * as React from 'react';
-import { ApplicationState } from '../store';
+import { ApplicationState } from '../../store';
 import { connect } from 'react-redux';
-import { TextField, IconButton, createStyles, Paper, Chip, WithStyles, Theme, withStyles } from '@material-ui/core';
+import { TextField, IconButton, createStyles, Paper, WithStyles, Theme, withStyles } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
+import TagList from '../controls/TagList';
 
 const styles = (theme: Theme) => createStyles({
-  chiplist: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    listStyle: 'none',
-    justifyContent: 'flex-start',
-    padding: theme.spacing(0.5)
-  },
-  
-  chip: {
-    margin: theme.spacing(0.5)
-  }
 });
 
 interface Props extends WithStyles<typeof styles>{
@@ -48,13 +38,8 @@ class NewEntry extends React.Component<Props, State> {
               </IconButton>
         </form>
 
-        <Paper component="ul" className={this.props.classes.chiplist}>
-          {this.state.tags.map(tag => (
-            <li key={tag}>
-              <Chip label={tag} className={this.props.classes.chip}
-                    onClick={() => this.onTagSelected(tag)} />
-            </li>
-          ))}
+        <Paper>
+          <TagList tags={this.state.tags} />
         </Paper>
       </>
     );
@@ -75,11 +60,6 @@ class NewEntry extends React.Component<Props, State> {
     const tags = [...new Set(allTags.map(t => t.substr(1)))];
     this.setState({ tags });
   }
-
-  onTagSelected = (tag: string) => {
-    console.log(tag);
-  }
-
 }
 
 export default connect(

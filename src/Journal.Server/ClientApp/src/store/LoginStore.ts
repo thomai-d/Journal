@@ -2,6 +2,7 @@ import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import { login } from '../api/loginApi';
 import jwt_decode from 'jwt-decode';
+import axios from 'axios';
 
 export interface LoginState {
   accessToken?: string;
@@ -26,13 +27,16 @@ interface AccessToken {
   preferred_username: string;
 }
 
-export type KnownAction = LoginSuccess | LoginFailed | Logout;
+type KnownAction = LoginSuccess | LoginFailed | Logout;
 
 export const actions = {
   login: (username: string, password: string): AppThunkAction<KnownAction> => async (dispatch) => {
     try {
       const loginResult = await login(username, password);
       const token = jwt_decode(loginResult.accessToken) as AccessToken;
+
+      axios.defaults.headers.common = { 'Authorization': `bearer ${loginResult.accessToken}` }
+
       dispatch ({
         type: 'LOGIN_SUCCESS',
         accessToken: loginResult.accessToken,

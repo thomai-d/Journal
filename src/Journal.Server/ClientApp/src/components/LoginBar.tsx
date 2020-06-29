@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ApplicationState } from '../store';
 import { connect } from 'react-redux';
-import * as LoginStore from '../store/Login';
+import * as LoginStore from '../store/LoginStore';
 import { IconButton, TextField, Menu, MenuItem } from '@material-ui/core';
 import { Grid, Icon } from '@material-ui/core';
 import { AnyAction, bindActionCreators, Dispatch } from 'redux';

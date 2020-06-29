@@ -50,20 +50,14 @@ export default (props: { children?: React.ReactNode }) => {
           <Drawer open={isOpen} onClose={onMenuClose}>
             <nav>
               <List>
-                <ListItem
-                  button
-                  onClick={() => {
-                    goto('/new');
-                  }}
-                >
-                  New
-                </ListItem>
+                <ListItem button onClick={() => { goto('/new'); }}>New</ListItem>
+                <ListItem button onClick={() => { goto('/history'); }}>History</ListItem>
               </List>
             </nav>
           </Drawer>
         </header>
         <main>
-          <Paper>{props.children}</Paper>
+          <Paper style={{ padding: '16px' }}>{props.children}</Paper>
         </main>
       </React.Fragment>
     );
