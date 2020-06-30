@@ -7,23 +7,25 @@ import { Grid, Icon } from '@material-ui/core';
 import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import { AccountCircle, ExitToApp, ArrowDropDown } from '@material-ui/icons';
 import { useState } from 'react';
+import { CSSTransition } from 'react-transition-group';
 
 const useStyle = makeStyles((theme: Theme) => ({
-    textBox: {
-      background: 'white',
-      marginLeft: '8px',
-    },
-    
-    form: {
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
+  textBox: {
+    background: 'white',
+    marginLeft: '8px',
+  },
 
-    iconButton: {
-      verticalAlign: 'middle',
-      cursor: 'pointer'
-    }
+  form: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  iconButton: {
+    verticalAlign: 'middle',
+    cursor: 'pointer',
+    flex: '0 0 auto',
+  },
 }));
 
 const stateToProps = (state: ApplicationState) => {
@@ -46,7 +48,6 @@ type Props = ReturnType<typeof stateToProps> &
   ReturnType<typeof dispatchToProps>;
 
 const LoginBar = (props: Props) => {
-
   const [userMenuTarget, setUserMenuTarget] = useState<any>(null);
   const classes = useStyle();
 
@@ -73,32 +74,49 @@ const LoginBar = (props: Props) => {
 
   return (
     <>
-      {!props.isLoggedIn && (
-        <Grid container justify="flex-end" alignItems="center">
-          <form onSubmit={onLogin} className={classes.form}>
-            <TextField
-              name="username"
-              color="primary"
-              placeholder="Username"
-              className={classes.textBox}
-            ></TextField>
-            <TextField
-              name="password"
-              color="primary"
-              type="password"
-              placeholder="Password"
-              className={classes.textBox}
-            ></TextField>
-            <IconButton type="submit" color="inherit">
-              <ExitToApp />
-            </IconButton>
-          </form>
-        </Grid>
-      )}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          overflow: 'hidden',
+        }}
+      >
+        <CSSTransition
+          in={!props.isLoggedIn}
+          timeout={5000}
+          classNames="fade-in"
+          unmountOnExit
+        >
+          <Grid id="loginBox" container justify="flex-end" alignItems="center">
+            <form onSubmit={onLogin} className={classes.form}>
+              <TextField
+                name="username"
+                color="primary"
+                placeholder="Username"
+                className={classes.textBox}
+              ></TextField>
+              <TextField
+                name="password"
+                color="primary"
+                type="password"
+                placeholder="Password"
+                className={classes.textBox}
+              ></TextField>
+              <IconButton type="submit" color="inherit">
+                <ExitToApp />
+              </IconButton>
+            </form>
+          </Grid>
+        </CSSTransition>
 
-      {props.isLoggedIn && (
-        <Grid container justify="flex-end" alignItems="center">
-          <Grid item>
+        <CSSTransition
+          in={props.isLoggedIn}
+          timeout={5000}
+          classNames="fade-in"
+          unmountOnExit
+        >
+          <div id="userMenu" style={{ display: 'flex' }}>
             <Icon
               onClick={onUserClick}
               component={AccountCircle}
@@ -111,9 +129,9 @@ const LoginBar = (props: Props) => {
               fontSize="large"
               className={classes.iconButton}
             />
-          </Grid>
-        </Grid>
-      )}
+          </div>
+        </CSSTransition>
+      </div>
 
       <Menu
         open={userMenuTarget !== null}

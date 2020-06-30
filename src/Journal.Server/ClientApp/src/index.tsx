@@ -7,6 +7,8 @@ import configureStore from './store/configureStore';
 import App from './App';
 import axios from 'axios';
 
+import './animations.css';
+
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href') as string;
 const history = createBrowserHistory({ basename: baseUrl });
 
