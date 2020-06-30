@@ -9,6 +9,13 @@ import { ApplicationState } from '../../store';
 import TagList from '../controls/TagList';
 
 const useStyle = makeStyles((theme: Theme) => ({
+  searchAdornment: {
+    width: '28px'
+  },
+
+  tableContainer: {
+    margin: theme.spacing(2)
+  }
 }));
 
 const stateToProps = (state: ApplicationState) => {
@@ -42,7 +49,7 @@ const History = (props: Props & DispatchProps) => {
           label="Filter"
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start" style={{ width: '28px' }}>
+              <InputAdornment position="start" className={classes.searchAdornment}>
                 {props.isSearching
                   ? <CircularProgress size="1em" />
                   : <Search />
@@ -53,7 +60,7 @@ const History = (props: Props & DispatchProps) => {
         />
       </FormControl>
 
-      <TableContainer component={Paper} style={{marginTop: '16px'}}>
+      <TableContainer component={Paper} className={classes.tableContainer}>
         <Table>
           <TableBody>
             {props.searchResults.map((item) => (

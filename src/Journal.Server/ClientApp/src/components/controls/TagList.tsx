@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Chip, makeStyles } from '@material-ui/core';
 
-const useStyles = makeStyles(theme => ({
+const useStyle = makeStyles(theme => ({
   chiplist: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -23,7 +23,7 @@ type Props = {
 
 
 export default ({ tags }: Props) => {
-  const classes = useStyles();
+  const classes = useStyle();
 
   return (
     <>

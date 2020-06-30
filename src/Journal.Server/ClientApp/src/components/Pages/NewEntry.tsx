@@ -6,6 +6,15 @@ import { Save } from '@material-ui/icons';
 import TagList from '../controls/TagList';
 
 const styles = (theme: Theme) => createStyles({
+  form: {
+    margin: theme.spacing(0.5),
+    display: 'flex',
+    alignItems: 'flex-start'
+  },
+
+  inputArea: {
+    flex: 1
+  }
 });
 
 interface Props extends WithStyles<typeof styles>{
@@ -26,12 +35,14 @@ class NewEntry extends React.Component<Props, State> {
 
   render() {
 
+    const { classes } = this.props;
+
     return (
       <>
-        <form noValidate autoComplete="off" style={{ margin: '8px', display: 'flex', alignItems: 'flex-start' }}
+        <form noValidate autoComplete="off" className={classes.form}
               onSubmit={this.onSubmit}>
               <TextField multiline name="text" rows="10" variant="outlined" fullWidth
-                        style={{ flex: 1 }} onChange={this.onTextChange}></TextField>
+                        className={classes.inputArea} onChange={this.onTextChange}></TextField>
 
               <IconButton type="submit">
                 <Save color="primary" fontSize="large" />
