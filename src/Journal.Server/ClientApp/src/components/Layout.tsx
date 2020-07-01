@@ -3,6 +3,7 @@ import { AppBar, Typography, Grid, IconButton, Drawer, List, ListItem, Paper, Th
 import { Menu } from '@material-ui/icons';
 import LoginBar from './controls/LoginBar';
 import { useHistory } from 'react-router';
+import SnackbarComponent from './controls/Snackbar';
 
 const useStyle = makeStyles((theme: Theme) => ({
   content: {
@@ -74,6 +75,8 @@ export default (props: { children?: React.ReactNode }) => {
           {props.children}
         </Paper>
       </main>
+
+      <SnackbarComponent />
     </React.Fragment>
   );
 };

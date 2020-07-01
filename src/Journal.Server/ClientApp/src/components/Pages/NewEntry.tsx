@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { ApplicationState } from '../../store';
 import { connect } from 'react-redux';
-import { TextField, IconButton, createStyles, Paper, WithStyles, Theme, withStyles, Snackbar } from '@material-ui/core';
+import { TextField, IconButton, createStyles, Paper, WithStyles, Theme, withStyles } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
 import TagList from '../controls/TagList';
 import { addDocument } from '../../api/documentApi';
+import { Dispatch, AnyAction, bindActionCreators } from 'redux';
+import * as SnackbarStore from '../../store/SnackbarStore';
+import { logError } from '../../util/logging'
 
 const styles = (theme: Theme) => createStyles({
   form: {
@@ -18,7 +21,12 @@ const styles = (theme: Theme) => createStyles({
   }
 });
 
-interface Props extends WithStyles<typeof styles>{
+const dispatchToProps = (dispatch: Dispatch<AnyAction>) =>
+  bindActionCreators({
+    showSnackbar: SnackbarStore.actions.showSnackbar
+  }, dispatch);
+
+type Props = WithStyles<typeof styles> & ReturnType<typeof dispatchToProps> & {
 }
 
 interface State {
@@ -66,9 +74,11 @@ class NewEntry extends React.Component<Props, State> {
       const form = e.currentTarget;
       await addDocument(content);
       form.reset();
+      this.props.showSnackbar('Document saved.', 'info');
     }
     catch (err) {
-      console.error(err);
+      logError('create document', err);
+      this.props.showSnackbar('Error while saving document', 'error');
     }
   }
 
@@ -86,5 +96,6 @@ class NewEntry extends React.Component<Props, State> {
 }
 
 export default connect(
-  (state: ApplicationState) => state
+  (state: ApplicationState) => state,
+  dispatchToProps
 )(withStyles(styles)(NewEntry));
