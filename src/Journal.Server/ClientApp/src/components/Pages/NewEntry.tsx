@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { ApplicationState } from '../../store';
 import { connect } from 'react-redux';
-import { TextField, IconButton, createStyles, Paper, WithStyles, Theme, withStyles } from '@material-ui/core';
+import { TextField, IconButton, createStyles, Paper, WithStyles, Theme, withStyles, Snackbar } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
 import TagList from '../controls/TagList';
+import { addDocument } from '../../api/documentApi';
 
 const styles = (theme: Theme) => createStyles({
   form: {
@@ -41,7 +42,7 @@ class NewEntry extends React.Component<Props, State> {
       <>
         <form noValidate autoComplete="off" className={classes.form}
               onSubmit={this.onSubmit}>
-              <TextField multiline name="text" rows="10" variant="outlined" fullWidth
+              <TextField multiline name="content" rows="10" variant="outlined" fullWidth
                         className={classes.inputArea} onChange={this.onTextChange}></TextField>
 
               <IconButton type="submit">
@@ -56,8 +57,19 @@ class NewEntry extends React.Component<Props, State> {
     );
   }
 
-  onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const content = formData.get('content') as string;
+
+    try {
+      const form = e.currentTarget;
+      await addDocument(content);
+      form.reset();
+    }
+    catch (err) {
+      console.error(err);
+    }
   }
 
   onTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
