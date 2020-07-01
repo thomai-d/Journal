@@ -3,13 +3,22 @@ import { ApplicationState } from '../../store';
 import { connect } from 'react-redux';
 import * as LoginStore from '../../store/LoginStore';
 import { IconButton, TextField, Menu, MenuItem, Theme, makeStyles } from '@material-ui/core';
-import { Grid, Icon } from '@material-ui/core';
+import { Icon } from '@material-ui/core';
 import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import { AccountCircle, ExitToApp, ArrowDropDown } from '@material-ui/icons';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { CSSTransition } from 'react-transition-group';
 
 const useStyle = makeStyles((theme: Theme) => ({
+  root: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    position: 'relative',
+    height: '50px'
+  },
+
   textBox: {
     background: 'white',
     marginLeft: '8px',
@@ -26,6 +35,15 @@ const useStyle = makeStyles((theme: Theme) => ({
     cursor: 'pointer',
     flex: '0 0 auto',
   },
+
+  loginBox: {
+    position: 'absolute'
+  },
+
+  userMenu: {
+    position: 'absolute',
+    display: 'flex'
+  }
 }));
 
 const stateToProps = (state: ApplicationState) => {
@@ -49,6 +67,8 @@ type Props = ReturnType<typeof stateToProps> &
 
 const LoginBar = (props: Props) => {
   const [userMenuTarget, setUserMenuTarget] = useState<any>(null);
+  const [loginInProgress, setLoginInProgress] = useState(false);
+  const loginBoxRef = useRef<HTMLDivElement>(null);
   const classes = useStyle();
 
   const onUserClick = (e: React.MouseEvent) => {
@@ -64,7 +84,20 @@ const LoginBar = (props: Props) => {
     const data = new FormData(e.target);
     const username = data.get('username') as string;
     const password = data.get('password') as string;
-    await props.login(username, password);
+
+    setLoginInProgress(true);
+    const success = await props.login(username, password);
+
+    const loginBox = loginBoxRef.current;
+    if (!success && loginBox) {
+        loginBox.classList.remove('shake');
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const bla = loginBox.offsetWidth;
+        // eslint-enable-next-line @typescript-eslint/no-unused-vars
+        loginBox.classList.add('shake');
+    }
+    
+    setLoginInProgress(false);
   };
 
   const onLogout = () => {
@@ -74,29 +107,22 @@ const LoginBar = (props: Props) => {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          overflow: 'hidden',
-        }}
-      >
+      <div className={classes.root}>
         <CSSTransition
           in={!props.isLoggedIn}
-          timeout={5000}
+          timeout={300}
           classNames="fade-in"
           unmountOnExit
         >
-          <Grid id="loginBox" container justify="flex-end" alignItems="center">
+          <div id="loginBox" ref={loginBoxRef} className={classes.loginBox}>
             <form onSubmit={onLogin} className={classes.form}>
-              <TextField
+              <TextField disabled={loginInProgress}
                 name="username"
                 color="primary"
                 placeholder="Username"
                 className={classes.textBox}
               ></TextField>
-              <TextField
+              <TextField disabled={loginInProgress}
                 name="password"
                 color="primary"
                 type="password"
@@ -107,16 +133,16 @@ const LoginBar = (props: Props) => {
                 <ExitToApp />
               </IconButton>
             </form>
-          </Grid>
+          </div>
         </CSSTransition>
 
         <CSSTransition
           in={props.isLoggedIn}
-          timeout={5000}
+          timeout={300}
           classNames="fade-in"
           unmountOnExit
         >
-          <div id="userMenu" style={{ display: 'flex' }}>
+          <div id="userMenu" className={classes.userMenu}>
             <Icon
               onClick={onUserClick}
               component={AccountCircle}

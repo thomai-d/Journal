@@ -17,6 +17,6 @@ export const reducers = {
     history: HistoryStore.reducer
 };
 
-export interface AppThunkAction<TAction> {
-    (dispatch: (action: TAction) => void, getState: () => ApplicationState): void;
+export interface AppThunkAction<TAction, TReturn = void> {
+    (dispatch: (action: TAction) => TReturn, getState: () => ApplicationState): TReturn;
 }

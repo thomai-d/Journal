@@ -30,7 +30,7 @@ interface AccessToken {
 type KnownAction = LoginSuccess | LoginFailed | Logout;
 
 export const actions = {
-  login: (username: string, password: string): AppThunkAction<KnownAction> => async (dispatch) => {
+  login: (username: string, password: string): AppThunkAction<KnownAction, Promise<boolean>> => async (dispatch) => {
     try {
       const loginResult = await login(username, password);
       const token = jwt_decode(loginResult.accessToken) as AccessToken;
@@ -42,9 +42,11 @@ export const actions = {
         accessToken: loginResult.accessToken,
         username: token.preferred_username
       } as LoginSuccess);
+      return true;
     }
     catch (err) {
       dispatch ({ type: 'LOGIN_FAILED' } as LoginFailed);
+      return false;
     }
   },
 
