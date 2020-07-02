@@ -1,12 +1,19 @@
-import { Reducer as HistoryStore } from 'redux';
+import { Reducer as HistoryStore, AnyAction } from 'redux';
 import { AppThunkAction } from '.';
 import { Document, queryDocuments } from '../api/documentApi';
+import * as LoginStore from './LoginStore';
 
 export interface HistoryState {
   searchText: string;
   isSearching: boolean;
   searchResults: Document[];
 }
+
+const defaultState = {
+  searchText: '',
+  isSearching: false,
+  searchResults: []
+};
 
 export interface SearchStarted {
   type: 'SEARCH_STARTED';
@@ -19,7 +26,7 @@ export interface SearchSucceeded {
   searchResults: Document[];
 }
 
-type KnownAction = SearchStarted | SearchSucceeded;
+export type KnownAction = SearchStarted | SearchSucceeded;
 
 export const actions = {
 
@@ -39,13 +46,9 @@ export const actions = {
   }
 }
 
-export const reducer: HistoryStore<HistoryState, KnownAction> = (state, action) => {
+export const reducer: HistoryStore<HistoryState, KnownAction | LoginStore.KnownAction> = (state, action) => {
     if (!state) {
-      return {
-        searchText: '',
-        isSearching: false,
-        searchResults: []
-      };
+      return defaultState;
     }
 
     switch (action.type) {
@@ -53,6 +56,8 @@ export const reducer: HistoryStore<HistoryState, KnownAction> = (state, action) 
         return { ...state, isSearching: true, searchResults: [], searchText: action.searchText };
       case 'SEARCH_SUCCEEDED':
         return { ...state, isSearching: false, searchResults: action.searchResults, searchText: action.searchText };
+      case 'LOGOUT':
+        return defaultState;
     }
 
     return state;

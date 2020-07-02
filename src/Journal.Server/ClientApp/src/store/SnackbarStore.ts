@@ -1,4 +1,5 @@
 import { Reducer } from 'redux';
+import * as LoginStore from './LoginStore';
 
 export type SnackbarType = 'error' | 'warning' | 'info' | 'success';
 
@@ -39,9 +40,12 @@ export const actions = {
   }
 }
 
-type KnownAction = SnackbarOpened | SnackbarClosed;
+export type KnownAction = SnackbarOpened | SnackbarClosed;
 
-export const reducer: Reducer<SnackbarState> = (state: SnackbarState | undefined, action: KnownAction) => {
+export const reducer: Reducer<SnackbarState> = 
+                (state: SnackbarState | undefined,
+                 action: KnownAction | LoginStore.KnownAction) => {
+
   if (!state) {
     return defaultState;
   }
@@ -58,6 +62,8 @@ export const reducer: Reducer<SnackbarState> = (state: SnackbarState | undefined
         ...state,
         isOpen: false
       };
+    case 'LOGOUT':
+      return defaultState;
   }
 
   return state;

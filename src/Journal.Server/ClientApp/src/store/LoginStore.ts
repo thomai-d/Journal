@@ -27,7 +27,7 @@ interface AccessToken {
   preferred_username: string;
 }
 
-type KnownAction = LoginSuccess | LoginFailed | Logout;
+export type KnownAction = LoginSuccess | LoginFailed | Logout;
 
 export const actions = {
   login: (username: string, password: string): AppThunkAction<KnownAction, Promise<boolean>> => async (dispatch) => {
