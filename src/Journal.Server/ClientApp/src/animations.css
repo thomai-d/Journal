@@ -1,23 +1,49 @@
-/* Fade in/out of login box */
+/* Slide in from right side */
 
-.fade-in-enter {
+.slide-in-right-enter {
   opacity: 0;
   transform: translate(300px);
 }
-.fade-in-enter-active {
+.slide-in-right-enter-active {
   transition: opacity 300ms, transform 300ms;
   transform: translate(0px);
   opacity: 1;
 }
 
-.fade-in-exit {
+.slide-in-right-exit {
   opacity: 1;
 }
 
-.fade-in-exit-active {
+.slide-in-right-exit-active {
   transition: opacity 300ms, transform 300ms;
   transform: translate(300px);
   opacity: 0;
+}
+
+/* Slide in 50px icon from left side */
+
+.slide-in-icon-left-enter {
+  opacity: 0;
+  transform: translate(-300px);
+  width: 0;
+}
+.slide-in-icon-left-enter-active {
+  transition: opacity 300ms, transform 300ms, width 300ms;
+  transform: translate(0px);
+  opacity: 1;
+  width: 50px;
+}
+
+.slide-in-icon-left-exit {
+  opacity: 1;
+  width: 50px;
+}
+
+.slide-in-icon-left-exit-active {
+  transition: opacity 300ms, transform 300ms, width 300ms;
+  transform: translate(-300px);
+  opacity: 0;
+  width: 0px;
 }
 
 /* Shake animation for failed login */

@@ -1,4 +1,4 @@
-import { Reducer as HistoryStore, AnyAction } from 'redux';
+import { Reducer as HistoryStore } from 'redux';
 import { AppThunkAction } from '.';
 import { Document, queryDocuments } from '../api/documentApi';
 import * as LoginStore from './LoginStore';

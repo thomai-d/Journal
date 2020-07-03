@@ -48,8 +48,8 @@ const useStyle = makeStyles((theme: Theme) => ({
 
 const stateToProps = (state: ApplicationState) => {
   return {
-    isLoggedIn: state.login ? !!state.login.accessToken : false,
-    username: state.login ? state.login.username : undefined,
+    isLoggedIn: state.login.isLoggedIn,
+    username: state.login.username
   };
 };
 
@@ -111,7 +111,7 @@ const LoginBar = (props: Props) => {
         <CSSTransition
           in={!props.isLoggedIn}
           timeout={300}
-          classNames="fade-in"
+          classNames="slide-in-right"
           unmountOnExit
         >
           <div id="loginBox" ref={loginBoxRef} className={classes.loginBox}>

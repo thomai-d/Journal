@@ -4,6 +4,9 @@ import { Menu } from '@material-ui/icons';
 import LoginBar from './controls/LoginBar';
 import { useHistory } from 'react-router';
 import SnackbarComponent from './controls/Snackbar';
+import { ApplicationState } from '../store';
+import { connect } from 'react-redux';
+import { CSSTransition } from 'react-transition-group';
 
 const useStyle = makeStyles((theme: Theme) => ({
   content: {
@@ -15,7 +18,15 @@ const useStyle = makeStyles((theme: Theme) => ({
   }
 }));
 
-export default (props: { children?: React.ReactNode }) => {
+const stateToProps = (state: ApplicationState) => ({
+  isLoggedIn: state.login.isLoggedIn
+});
+
+type Props = ReturnType<typeof stateToProps> & {
+  children?: React.ReactNode
+};
+
+export const Layout = (props: Props) => {
 
   const classes = useStyle();
 
@@ -42,11 +53,17 @@ export default (props: { children?: React.ReactNode }) => {
           <Grid container alignItems="center">
             <Grid item xs>
               <Grid container justify="flex-start" alignItems="center">
-                <Grid item>
-                  <IconButton color="inherit" onClick={onMenuToggle}>
-                    <Menu />
-                  </IconButton>
-                </Grid>
+                <CSSTransition
+                  in={props.isLoggedIn}
+                  timeout={300}
+                  classNames="slide-in-icon-left"
+                  unmountOnExit>
+                  <Grid item>
+                    <IconButton color="inherit" onClick={onMenuToggle} className="grow">
+                      <Menu />
+                    </IconButton>
+                  </Grid>
+                </CSSTransition>
                 <Grid item>
                   <Typography variant="h4" className={classes.title}>
                     Journal
@@ -61,22 +78,38 @@ export default (props: { children?: React.ReactNode }) => {
           </Grid>
         </AppBar>
 
-        <Drawer open={isOpen} onClose={onMenuClose}>
-          <nav>
-            <List>
-              <ListItem button onClick={() => { goto('/new'); }}>New</ListItem>
-              <ListItem button onClick={() => { goto('/history'); }}>History</ListItem>
-            </List>
-          </nav>
-        </Drawer>
+        {props.isLoggedIn && (
+          <Drawer open={isOpen} onClose={onMenuClose}>
+            <nav>
+              <List>
+                <ListItem
+                  button
+                  onClick={() => {
+                    goto('/new');
+                  }}
+                >
+                  New
+                </ListItem>
+                <ListItem
+                  button
+                  onClick={() => {
+                    goto('/history');
+                  }}
+                >
+                  History
+                </ListItem>
+              </List>
+            </nav>
+          </Drawer>
+        )}
       </header>
       <main>
-        <Paper className={classes.content}>
-          {props.children}
-        </Paper>
+        <Paper className={classes.content}>{props.children}</Paper>
       </main>
 
       <SnackbarComponent />
     </React.Fragment>
   );
 };
+
+export default connect(stateToProps)(Layout);

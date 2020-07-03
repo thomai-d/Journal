@@ -7,6 +7,7 @@ import axios from 'axios';
 export interface LoginState {
   accessToken?: string;
   username?: string;
+  isLoggedIn: boolean;
 }
 
 export interface LoginSuccess {
@@ -53,21 +54,27 @@ export const actions = {
   logout: (): AppThunkAction<KnownAction> => async (dispatch) => {
     dispatch({ type: 'LOGOUT' });
   }
-
 }
 
 export const reducer: Reducer<LoginState> = (state: LoginState | undefined, action: KnownAction) : LoginState => {
   if (!state) {
-    return { };
+    return {
+      isLoggedIn: false
+    };
   }
 
   switch (action.type) {
     case 'LOGIN_SUCCESS':
-      return { ...state, accessToken: action.accessToken, username: action.username };
+      return {
+        ...state,
+        accessToken: action.accessToken,
+        username: action.username,
+        isLoggedIn: !!action.accessToken
+      };
     case 'LOGIN_FAILED':
-      return { ...state, accessToken: undefined, username: undefined };
+      return { ...state, accessToken: undefined, username: undefined, isLoggedIn: false };
     case 'LOGOUT':
-      return { ...state, accessToken: undefined, username: undefined };
+      return { ...state, accessToken: undefined, username: undefined, isLoggedIn: false };
   }
 
   return state;
