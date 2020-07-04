@@ -4,9 +4,9 @@ import { Menu } from '@material-ui/icons';
 import LoginBar from './controls/LoginBar';
 import { useHistory } from 'react-router';
 import SnackbarComponent from './controls/Snackbar';
-import { ApplicationState } from '../store';
 import { connect } from 'react-redux';
 import { CSSTransition } from 'react-transition-group';
+import { ApplicationState } from '../store/configureStore';
 
 const useStyle = makeStyles((theme: Theme) => ({
   content: {

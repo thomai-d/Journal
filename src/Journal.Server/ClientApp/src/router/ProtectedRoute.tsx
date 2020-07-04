@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { ApplicationState } from '../store';
 import { connect } from 'react-redux';
 import { Route, Redirect, RouteProps } from 'react-router';
+import { ApplicationState } from '../store/configureStore';
 
 const stateToProps = (state: ApplicationState) => ({
   isLoggedIn: state.login.isLoggedIn

@@ -1,9 +1,10 @@
 import { Reducer } from 'redux';
-import { AppThunkAction, ApplicationState } from '.';
+import { AppThunkAction } from '.';
 import { login } from '../api/loginApi';
 import jwt_decode from 'jwt-decode';
 import axios from 'axios';
 import { RehydrateAction } from 'redux-persist';
+import { ApplicationState } from './configureStore';
 
 export interface LoginState {
   accessToken?: string;
@@ -65,7 +66,8 @@ export const reducer: Reducer<LoginState> = (state: LoginState | undefined, acti
   switch (action.type) {
     case 'persist/REHYDRATE':
       const lastState = action.payload as ApplicationState;
-      axios.defaults.headers.common = { 'Authorization': `bearer ${lastState.login.accessToken}` }
+      const token = lastState.login.accessToken;
+      axios.defaults.headers.common = { 'Authorization': `bearer ${token}` }
       return state;
 
     case 'LOGIN_SUCCESS':

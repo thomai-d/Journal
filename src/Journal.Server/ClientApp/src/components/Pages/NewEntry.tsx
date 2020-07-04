@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { ApplicationState } from '../../store';
 import { connect } from 'react-redux';
 import { TextField, IconButton, createStyles, Paper, WithStyles, Theme, withStyles } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
@@ -7,7 +6,8 @@ import TagList from '../controls/TagList';
 import { addDocument } from '../../api/documentApi';
 import { Dispatch, AnyAction, bindActionCreators } from 'redux';
 import * as SnackbarStore from '../../store/SnackbarStore';
-import { logError } from '../../util/logging'
+import { logger } from '../../util/logger';
+import { ApplicationState } from '../../store/configureStore';
 
 const styles = (theme: Theme) => createStyles({
   form: {
@@ -77,7 +77,7 @@ class NewEntry extends React.Component<Props, State> {
       this.props.showSnackbar('Document saved.', 'info');
     }
     catch (err) {
-      logError('create document', err);
+      logger.err('create document', err);
       this.props.showSnackbar('Error while saving document', 'error');
     }
   }

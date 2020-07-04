@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ApplicationState } from '../../store';
 import { Snackbar } from '@material-ui/core';
 import { Dispatch, AnyAction, bindActionCreators } from 'redux';
 import * as SnackbarStore from '../../store/SnackbarStore';
 import MuiAlert from '@material-ui/lab/Alert';
+import { ApplicationState } from '../../store/configureStore';
 
 const stateToProps = (state: ApplicationState) => {
   return {

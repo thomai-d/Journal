@@ -5,9 +5,9 @@ import { Search } from '@material-ui/icons';
 import { debounce } from '../../util/debounce';
 import { AnyAction, Dispatch, bindActionCreators } from 'redux';
 import * as HistoryStore from '../../store/HistoryStore';
-import { ApplicationState } from '../../store';
 import TagList from '../controls/TagList';
 import { printDate } from '../../util/printDate';
+import { ApplicationState } from '../../store/configureStore';
 
 const useStyle = makeStyles((theme: Theme) => ({
   searchAdornment: {

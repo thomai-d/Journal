@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { ApplicationState } from '../../store';
 import { connect } from 'react-redux';
 import * as LoginStore from '../../store/LoginStore';
 import { IconButton, TextField, Menu, MenuItem, Theme, makeStyles } from '@material-ui/core';
@@ -8,6 +7,7 @@ import { AnyAction, bindActionCreators, Dispatch } from 'redux';
 import { AccountCircle, ExitToApp, ArrowDropDown } from '@material-ui/icons';
 import { useState, useRef } from 'react';
 import { CSSTransition } from 'react-transition-group';
+import { ApplicationState } from '../../store/configureStore';
 
 const useStyle = makeStyles((theme: Theme) => ({
   root: {

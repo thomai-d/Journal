@@ -9,7 +9,6 @@ export interface Document {
 }
 
 export async function queryDocuments(tags: string[]): Promise<Document[]> {
-  console.log('QUERY');
   const response = await axios.post<Document[]>('api/document/query', { tags });
 
   if (response.status === 200) {
