@@ -1,8 +1,9 @@
 import { Reducer } from 'redux';
-import { AppThunkAction } from '.';
+import { AppThunkAction, ApplicationState } from '.';
 import { login } from '../api/loginApi';
 import jwt_decode from 'jwt-decode';
 import axios from 'axios';
+import { RehydrateAction } from 'redux-persist';
 
 export interface LoginState {
   accessToken?: string;
@@ -28,15 +29,13 @@ interface AccessToken {
   preferred_username: string;
 }
 
-export type KnownAction = LoginSuccess | LoginFailed | Logout;
+export type KnownAction = LoginSuccess | LoginFailed | Logout | RehydrateAction;
 
 export const actions = {
   login: (username: string, password: string): AppThunkAction<KnownAction, Promise<boolean>> => async (dispatch) => {
     try {
       const loginResult = await login(username, password);
       const token = jwt_decode(loginResult.accessToken) as AccessToken;
-
-      axios.defaults.headers.common = { 'Authorization': `bearer ${loginResult.accessToken}` }
 
       dispatch ({
         type: 'LOGIN_SUCCESS',
@@ -64,7 +63,13 @@ export const reducer: Reducer<LoginState> = (state: LoginState | undefined, acti
   }
 
   switch (action.type) {
+    case 'persist/REHYDRATE':
+      const lastState = action.payload as ApplicationState;
+      axios.defaults.headers.common = { 'Authorization': `bearer ${lastState.login.accessToken}` }
+      return state;
+
     case 'LOGIN_SUCCESS':
+      axios.defaults.headers.common = { 'Authorization': `bearer ${action.accessToken}` }
       return {
         ...state,
         accessToken: action.accessToken,

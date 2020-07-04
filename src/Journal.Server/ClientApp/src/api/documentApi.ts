@@ -5,18 +5,14 @@ export interface Document {
       author: string,
       content: string,
       tags: string[],
-      created: Date
+      created: string
 }
 
 export async function queryDocuments(tags: string[]): Promise<Document[]> {
+  console.log('QUERY');
   const response = await axios.post<Document[]>('api/document/query', { tags });
 
   if (response.status === 200) {
-
-    response.data.forEach(doc => {
-      doc.created = new Date(Date.parse((doc.created as any) as string))
-    });
-
     return response.data;
   }
  

@@ -7,6 +7,7 @@ import { AnyAction, Dispatch, bindActionCreators } from 'redux';
 import * as HistoryStore from '../../store/HistoryStore';
 import { ApplicationState } from '../../store';
 import TagList from '../controls/TagList';
+import { printDate } from '../../util/printDate';
 
 const useStyle = makeStyles((theme: Theme) => ({
   searchAdornment: {
@@ -35,6 +36,13 @@ type DispatchProps = ReturnType<typeof dispatchToProps>;
 const History = (props: Props & DispatchProps) => {
 
   const classes = useStyle();
+
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const firstSearchText = props.searchText;
+  React.useEffect(() => {
+    props.search(firstSearchText);
+  }, []);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const onSearchTextChange = React.useCallback(debounce(text => {
     props.search(text);
@@ -67,7 +75,7 @@ const History = (props: Props & DispatchProps) => {
               <TableRow key={item.id}>
                 <TableCell>{item.content}</TableCell>
                 <TableCell padding="none"><TagList tags={item.tags} /></TableCell>
-                <TableCell>{item.created.toLocaleDateString()}</TableCell>
+                <TableCell>{printDate(item.created)}</TableCell>
               </TableRow>
             ))}
             </TableBody>

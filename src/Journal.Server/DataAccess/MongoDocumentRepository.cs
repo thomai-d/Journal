@@ -51,7 +51,7 @@ namespace Journal.Server.DataAccess
             }
 
             var doc = await this.GetDocumentsForUserAsync(author, filter, limit);
-            return doc;
+            return doc.OrderByDescending(d => d.Created).ToList();
         }
 
         public async Task<Document> GetByIdAsync(string author, string id)

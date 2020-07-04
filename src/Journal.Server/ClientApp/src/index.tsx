@@ -8,17 +8,20 @@ import App from './App';
 import axios from 'axios';
 
 import './animations.css';
+import { PersistGate } from 'redux-persist/integration/react';
 
-const store = configureStore(history);
+const { store, persistor } = configureStore(history);
 
 // todo: env.environment?
 axios.defaults.baseURL = 'http://localhost:5000';
 
 ReactDOM.render(
-    <Provider store={store}>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
       <ConnectedRouter history={history}>
         <App />
       </ConnectedRouter>
-    </Provider>,
+    </PersistGate>
+  </Provider>,
   document.getElementById('root')
 );
