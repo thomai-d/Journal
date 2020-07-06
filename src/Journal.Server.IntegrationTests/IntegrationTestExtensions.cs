@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Newtonsoft.Json;
 
 namespace Journal.Server.IntegrationTests
@@ -14,6 +16,13 @@ namespace Journal.Server.IntegrationTests
             response.EnsureSuccessStatusCode();
             var str = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(str);
+        }
+
+        public static async Task<HttpResponseMessage> ShouldRepondWith(this Task<HttpResponseMessage> responseTask, HttpStatusCode code)
+        {
+            var response = await responseTask;
+            response.StatusCode.Should().Be(code);
+            return response;
         }
     }
 }

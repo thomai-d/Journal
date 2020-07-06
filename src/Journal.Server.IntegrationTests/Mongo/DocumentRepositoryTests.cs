@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.Core.Logging;
 using FluentAssertions;
+using Journal.Server.Controllers.ApiModel;
 using Journal.Server.DataAccess;
 using Journal.Server.Model;
 using Microsoft.Extensions.Logging;
@@ -97,14 +98,59 @@ namespace Journal.Server.IntegrationTests.Mongo
             docs = await target.QueryAsync("test", 10, "f", "b");
             docs.Count.Should().Be(0);
         }
+        
+        [Fact]
+        public async Task AggregateAsync_Test()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+            await target.DeleteAllDocumentsFromAuthorAsync("test");
 
-        private static Document CreateValidDoc(string content = "#Hallo wie gehts")
+            await target.AddAsync(CreateValidDoc(content: "#a #b", date: "2020-07-05"));
+            await target.AddAsync(CreateValidDoc(content: "#a #c", date: "2020-07-05"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b", date: "2019-01-01"));
+            
+            (await target.AggregateAsync("test", GroupTimeRange.Day, Aggregate.Count))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new { Key = "2020-07-05", Value = 2 },
+                    new { Key = "2019-01-01", Value = 1 }
+                });
+            
+            (await target.AggregateAsync("test", GroupTimeRange.Week, Aggregate.Count))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new { Key = "27/2020", Value = 2 },
+                    new { Key = "01/2019", Value = 1 }
+                });
+
+            (await target.AggregateAsync("test", GroupTimeRange.Month, Aggregate.Count))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new { Key = "2020-07", Value = 2 },
+                    new { Key = "2019-01", Value = 1 }
+                });
+            
+            (await target.AggregateAsync("test", GroupTimeRange.Year, Aggregate.Count))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new { Key = "2020", Value = 2 },
+                    new { Key = "2019", Value = 1 }
+                });
+            (await target.AggregateAsync("test", GroupTimeRange.Year, Aggregate.Count, "a", "b"))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new { Key = "2020", Value = 1 },
+                    new { Key = "2019", Value = 1 }
+                });
+        }
+
+        private static Document CreateValidDoc(string content = "#Hallo wie gehts", string date = "2000-01-01")
         {
             return new Document
             {
                 Content = content,
                 Author = "test",
-                Created = DateTime.Now
+                Created = DateTime.Parse(date).ToLocalTime()
             };
         }
     }

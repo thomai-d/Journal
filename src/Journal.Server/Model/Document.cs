@@ -12,6 +12,16 @@ namespace Journal.Server.Model
 {
     public class Document
     {
+        public Document()
+        {
+        }
+
+        public Document(string author, string content)
+        {
+            this.Content = content;
+            this.Author = author;
+        }
+
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         [JsonProperty(Required = Required.DisallowNull)]

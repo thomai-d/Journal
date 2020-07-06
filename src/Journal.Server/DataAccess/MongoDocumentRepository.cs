@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Journal.Server.Controllers.ApiModel;
+using Journal.Server.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -72,6 +74,59 @@ namespace Journal.Server.DataAccess
         {
             var builder = new FilterDefinitionBuilder<Document>();
             await this.documents.DeleteManyAsync(builder.Empty);
+        }
+
+        public async Task<List<GroupResult>> AggregateAsync(string author, GroupTimeRange groupTimeRange, Aggregate aggregate, params string[] tags)
+        {
+            var dateFormat = groupTimeRange switch
+            {
+                GroupTimeRange.Day => "%Y-%m-%d",
+                GroupTimeRange.Week => "%V/%Y",
+                GroupTimeRange.Month => "%Y-%m",
+                GroupTimeRange.Year => "%Y",
+                _ => throw new NotSupportedException($"{groupTimeRange} is not supported."),
+            };
+            
+            var filter = this.filterBuilder.Empty;
+            if (tags.Length > 0)
+                filter = this.filterBuilder.All(doc => doc.Tags, tags);
+            var userFilter = this.filterBuilder.Where(d => d.Author == author);
+            var rootFilter = this.filterBuilder.And(userFilter, filter);
+
+            var aggregateResult = this.documents.Aggregate()
+                                    .Match(rootFilter)
+                                    .Group(new BsonDocument
+                                    {
+                                        { "_id", new BsonDocument
+                                            {
+                                                { "$dateToString", new BsonDocument
+                                                    {
+                                                        { "format", dateFormat },
+                                                        { "date", "$Created" },
+                                                        { "timezone", "Europe/Berlin" }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        { "count", new BsonDocument
+                                            {
+                                                {  "$sum", 1 }
+                                            }
+                                        }
+                                    })
+                                    .Project(new BsonDocument
+                                             {
+                                                 { "_id", 0 },
+                                                 { "Key", "$_id" },
+                                                 { "Value", "$count" }
+                                             })
+                                    .Sort(new BsonDocument { { "Key", -1 } });
+
+            var bsonResult = await aggregateResult.ToListAsync();
+            var result = bsonResult.Select(doc => BsonSerializer.Deserialize<GroupResult>(doc))
+                                   .ToList();
+
+            return result;
         }
 
         private async Task<List<Document>> GetDocumentsForUserAsync(string author, FilterDefinition<Document> filter, int limit)

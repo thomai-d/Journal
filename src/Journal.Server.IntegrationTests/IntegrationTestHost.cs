@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Journal.Server.Controllers;
 using Journal.Server.Controllers.ApiModel;
+using Journal.Server.DataAccess;
+using Journal.Server.Model;
 using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +36,21 @@ namespace Journal.Server.IntegrationTests
         public T GetService<T>()
         {
             return this.Services.GetRequiredService<T>();
+        }
+        
+        public async Task DeleteDocumentsForAuthorAsync(string author)
+        {
+            var docRepo = this.GetService<IDocumentRepository>();
+            await docRepo.DeleteAllDocumentsFromAuthorAsync(author);
+        }
+
+        public async Task InsertDocumentsAsync(string author, params Document[] documents)
+        {
+            var docRepo = this.GetService<IDocumentRepository>();
+            foreach (var doc in documents)
+            {
+                await docRepo.AddAsync(doc);
+            }
         }
 
         public async Task<T> GetAsync<T>(string path)

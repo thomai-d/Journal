@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Journal.Server.Controllers.ApiModel;
 using Journal.Server.Model;
 using MongoDB.Bson;
 
@@ -16,5 +17,7 @@ namespace Journal.Server.DataAccess
         Task<List<Document>> QueryAsync(string author, int limit, params string[] tags);
 
         Task DeleteAllDocumentsFromAuthorAsync(string author);
+
+        Task<List<GroupResult>> AggregateAsync(string author, GroupTimeRange groupTimeRange, Aggregate aggregate, params string[] tags);
     }
 }
