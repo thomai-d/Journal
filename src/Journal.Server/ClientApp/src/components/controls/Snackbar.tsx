@@ -28,9 +28,9 @@ const SnackbarComponent = (props: Props) => {
 
   return (
     <Snackbar open={props.snackbar.isOpen} onClose={onClose}>
-        <MuiAlert severity={props.snackbar.type} variant="filled">
-          {props.snackbar.text}
-     </MuiAlert>
+      <MuiAlert severity={props.snackbar.type} variant="filled">
+        {props.snackbar.text}
+      </MuiAlert>
     </Snackbar>
   );
 }

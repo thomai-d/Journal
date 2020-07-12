@@ -2,47 +2,68 @@ import { Reducer as HistoryStore } from 'redux';
 import { AppThunkAction } from '.';
 import { Document, queryDocuments } from '../api/documentApi';
 import * as LoginStore from './LoginStore';
+import { logger } from '../util/logger';
 
 export interface HistoryState {
   searchText: string;
-  isSearching: boolean;
-  searchResults: Document[];
+  documentSearchInProgress: boolean;
+  documentSearchResults: Document[];
+  documentSearchError: string;
 }
 
 const defaultState = {
   searchText: '',
-  isSearching: false,
-  searchResults: []
-};
+  documentSearchInProgress: false,
+  documentSearchResults: [],
+  documentSearchError: ''
+} as HistoryState;
 
-export interface SearchStarted {
+export interface DocumentSearchStarted {
   type: 'DOCUMENT_SEARCH_STARTED';
   searchText: string;
 }
 
-export interface SearchSucceeded {
+export interface DocumentSearchSucceeded {
   type: 'DOCUMENT_SEARCH_SUCCEEDED';
   searchText: string;
   searchResults: Document[];
 }
 
-export type KnownAction = SearchStarted | SearchSucceeded;
+export interface DocumentSearchFailed {
+  type: 'DOCUMENT_SEARCH_FAILED';
+  searchText: string;
+  error: string;
+}
+
+export type KnownAction = DocumentSearchStarted | DocumentSearchSucceeded | DocumentSearchFailed;
 
 export const actions = {
 
-  search: (searchText: string): AppThunkAction<KnownAction> => async (dispatch) => {
+  searchDocuments: (searchText: string): AppThunkAction<KnownAction> => async (dispatch) => {
     dispatch({
       type: 'DOCUMENT_SEARCH_STARTED',
       searchText
     });
 
     const tags = searchText === '' ? []  : searchText.split(' ');
-    const result = await queryDocuments(tags);
+
+    let result: Document[] = [];
+    try {
+      result = await queryDocuments(tags);
       dispatch({
         type: 'DOCUMENT_SEARCH_SUCCEEDED',
         searchResults: result,
         searchText
       });
+    }
+    catch(err) {
+      logger.err('Document search failed', undefined, err);
+      dispatch({
+        type: 'DOCUMENT_SEARCH_FAILED',
+        searchText,
+        error: err.message ? err.message : JSON.stringify(err)
+      });
+    }
   }
 }
 
@@ -53,9 +74,11 @@ export const reducer: HistoryStore<HistoryState, KnownAction | LoginStore.KnownA
 
     switch (action.type) {
       case 'DOCUMENT_SEARCH_STARTED':
-        return { ...state, isSearching: true, searchResults: [], searchText: action.searchText };
+        return { ...state, documentSearchInProgress: true, documentSearchResults: [], searchText: action.searchText };
       case 'DOCUMENT_SEARCH_SUCCEEDED':
-        return { ...state, isSearching: false, searchResults: action.searchResults, searchText: action.searchText };
+        return { ...state, documentSearchInProgress: false, documentSearchResults: action.searchResults, searchText: action.searchText };
+      case 'DOCUMENT_SEARCH_FAILED':
+        return { ...state, documentSearchInProgress: false, documentSearchResults: [], searchText: action.searchText, documentSearchError: action.error };
       case 'LOGOUT':
         return defaultState;
     }

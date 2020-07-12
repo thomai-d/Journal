@@ -1,21 +1,25 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { FormControl, InputAdornment, TextField, CircularProgress, TableContainer, Table, Paper, TableBody, TableRow, TableCell, Theme, makeStyles } from '@material-ui/core';
+import { FormControl, InputAdornment, TextField, CircularProgress, Theme, makeStyles } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { debounce } from '../../util/debounce';
 import { AnyAction, Dispatch, bindActionCreators } from 'redux';
 import * as HistoryStore from '../../store/HistoryStore';
-import TagList from '../controls/TagList';
-import { printDate } from '../../util/printDate';
 import { ApplicationState } from '../../store/configureStore';
+import DocumentList from '../controls/DocumentList';
+import MuiAlert from '@material-ui/lab/Alert';
 
 const useStyle = makeStyles((theme: Theme) => ({
   searchAdornment: {
     width: '28px'
   },
 
-  tableContainer: {
-    marginTop: theme.spacing(2)
+  form: {
+    marginBottom: theme.spacing(1)
+  },
+  
+  alert: {
+    maxWidth: '50%'
   }
 }));
 
@@ -27,7 +31,7 @@ const stateToProps = (state: ApplicationState) => {
 
 const dispatchToProps = (dispatch: Dispatch<AnyAction>) =>
   bindActionCreators({
-    search: HistoryStore.actions.search
+    searchDocuments: HistoryStore.actions.searchDocuments
   }, dispatch);
 
 type Props = ReturnType<typeof stateToProps>;
@@ -40,17 +44,17 @@ const History = (props: Props & DispatchProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const firstSearchText = props.searchText;
   React.useEffect(() => {
-    props.search(firstSearchText);
+    props.searchDocuments(firstSearchText);
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
 
   const onSearchTextChange = React.useCallback(debounce(text => {
-    props.search(text);
+    props.searchDocuments(text);
   }, 300), []);
 
   return (
     <>
-      <FormControl>
+      <FormControl className={classes.form}>
         <TextField
           defaultValue={props.searchText}
           onChange={(e) => onSearchTextChange(e.currentTarget.value)}
@@ -58,7 +62,7 @@ const History = (props: Props & DispatchProps) => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start" className={classes.searchAdornment}>
-                {props.isSearching
+                {props.documentSearchInProgress
                   ? <CircularProgress size="1em" />
                   : <Search />
                 }
@@ -68,19 +72,10 @@ const History = (props: Props & DispatchProps) => {
         />
       </FormControl>
 
-      <TableContainer component={Paper} className={classes.tableContainer}>
-        <Table>
-          <TableBody>
-            {props.searchResults.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.content}</TableCell>
-                <TableCell padding="none"><TagList tags={item.tags} /></TableCell>
-                <TableCell>{printDate(item.created)}</TableCell>
-              </TableRow>
-            ))}
-            </TableBody>
-          </Table>
-      </TableContainer>
+      {props.documentSearchError 
+        ? <MuiAlert className={classes.alert} severity="warning" variant="filled"><span>{props.documentSearchError}</span></MuiAlert>
+        : <DocumentList documents={props.documentSearchResults}></DocumentList>
+      }
     </>
   );
 }

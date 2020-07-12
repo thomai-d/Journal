@@ -66,8 +66,11 @@ export const reducer: Reducer<LoginState> = (state: LoginState | undefined, acti
   switch (action.type) {
     case 'persist/REHYDRATE':
       const lastState = action.payload as ApplicationState;
-      const token = lastState.login.accessToken;
-      axios.defaults.headers.common = { 'Authorization': `bearer ${token}` }
+      const token = lastState?.login.accessToken;
+      if (token) {
+        axios.defaults.headers.common = { 'Authorization': `bearer ${token}` }
+      }
+
       return state;
 
     case 'LOGIN_SUCCESS':
