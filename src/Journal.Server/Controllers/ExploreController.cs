@@ -38,13 +38,13 @@ namespace Journal.Server.Controllers
         /// }
         /// 200
         /// [
-        ///     { year: 2020, month: 7, value: 5 },
-        ///     { year: 2020, month: 6, value: 2 },
+        ///     { key: '2020-07', value: 5 },
+        ///     { key: '2020-06', value: 2 },
         /// ]
         /// </example>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<int>> PostAsync([FromBody] ExploreParameter param)
+        public async Task<IActionResult> PostAsync([FromBody]ExploreParameter param)
         {
             param.Validate();
 

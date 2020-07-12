@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using Journal.Server.DataAccess;
 using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,7 +42,12 @@ namespace Journal.Server
             });
 #endif
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                    .AddJsonOptions(opt =>
+                    {
+                        opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    });
+
             services.AddSwaggerGen(opt =>
             {
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

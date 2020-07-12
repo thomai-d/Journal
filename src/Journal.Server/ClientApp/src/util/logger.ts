@@ -16,10 +16,38 @@ function logToConsole(level: LogLevel, date: Date, msgTemplate: string, props?: 
     return props?.[propName] ?? `{${propName}?}`;
   });
 
-  if (additional)
-    console.log(timestr, message, '\n', additional);
-  else
-    console.log(timestr, message);
+  switch (level) {
+    case LogLevel.Debug:
+      if (additional)
+        console.debug(timestr, message, '\n', additional);
+      else
+        console.debug(timestr, message);
+      break;
+    case LogLevel.Info:
+      if (additional)
+        console.info(timestr, message, '\n', additional);
+      else
+        console.info(timestr, message);
+      break;
+    case LogLevel.Warn:
+      if (additional)
+        console.warn(timestr, message, '\n', additional);
+      else
+        console.warn(timestr, message);
+      break;
+    case LogLevel.Error:
+      if (additional)
+        console.error(timestr, message, '\n', additional);
+      else
+        console.error(timestr, message);
+      break;
+    default:
+      if (additional)
+        console.info(timestr, message, '\n', additional);
+      else
+        console.info(timestr, message);
+      break;
+  }
 }
 
 function log(level: LogLevel, msgTemplate: string, props?: any, add?: any): void {
