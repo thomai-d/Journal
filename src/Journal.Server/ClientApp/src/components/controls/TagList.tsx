@@ -13,7 +13,7 @@ const useStyle = makeStyles(theme => ({
   
   chip: {
     marginLeft: theme.spacing(0.5),
-    marginRight: theme.spacing(0.5)
+    marginRight: theme.spacing(0.5),
   }
 }));
 
@@ -31,7 +31,7 @@ export default ({ tags }: Props) => {
         {tags.map((tag) => (
           <li key={tag}>
             <Chip
-              label={tag}
+              label={tag} size="small"
               className={classes.chip}
             />
           </li>

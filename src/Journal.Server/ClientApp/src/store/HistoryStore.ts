@@ -16,12 +16,12 @@ const defaultState = {
 };
 
 export interface SearchStarted {
-  type: 'SEARCH_STARTED';
+  type: 'DOCUMENT_SEARCH_STARTED';
   searchText: string;
 }
 
 export interface SearchSucceeded {
-  type: 'SEARCH_SUCCEEDED';
+  type: 'DOCUMENT_SEARCH_SUCCEEDED';
   searchText: string;
   searchResults: Document[];
 }
@@ -32,14 +32,14 @@ export const actions = {
 
   search: (searchText: string): AppThunkAction<KnownAction> => async (dispatch) => {
     dispatch({
-      type: 'SEARCH_STARTED',
+      type: 'DOCUMENT_SEARCH_STARTED',
       searchText
     });
 
     const tags = searchText === '' ? []  : searchText.split(' ');
     const result = await queryDocuments(tags);
       dispatch({
-        type: 'SEARCH_SUCCEEDED',
+        type: 'DOCUMENT_SEARCH_SUCCEEDED',
         searchResults: result,
         searchText
       });
@@ -52,9 +52,9 @@ export const reducer: HistoryStore<HistoryState, KnownAction | LoginStore.KnownA
     }
 
     switch (action.type) {
-      case 'SEARCH_STARTED':
+      case 'DOCUMENT_SEARCH_STARTED':
         return { ...state, isSearching: true, searchResults: [], searchText: action.searchText };
-      case 'SEARCH_SUCCEEDED':
+      case 'DOCUMENT_SEARCH_SUCCEEDED':
         return { ...state, isSearching: false, searchResults: action.searchResults, searchText: action.searchText };
       case 'LOGOUT':
         return defaultState;

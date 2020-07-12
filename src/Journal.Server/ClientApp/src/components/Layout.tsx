@@ -10,7 +10,8 @@ import { ApplicationState } from '../store/configureStore';
 
 const useStyle = makeStyles((theme: Theme) => ({
   content: {
-    padding: theme.spacing(1)
+    padding: theme.spacing(1),
+    height: '100%'
   },
 
   title: {
@@ -48,61 +49,60 @@ export const Layout = (props: Props) => {
 
   return (
     <React.Fragment>
-      <header>
-        <AppBar position="static">
-          <Grid container alignItems="center">
-            <Grid item xs>
-              <Grid container justify="flex-start" alignItems="center">
-                <CSSTransition
-                  in={props.isLoggedIn}
-                  timeout={300}
-                  classNames="slide-in-icon-left"
-                  unmountOnExit>
-                  <Grid item>
-                    <IconButton color="inherit" onClick={onMenuToggle} className="grow">
-                      <Menu />
-                    </IconButton>
-                  </Grid>
-                </CSSTransition>
+      <AppBar position="static">
+        <Grid container alignItems="center">
+          <Grid item xs>
+            <Grid container justify="flex-start" alignItems="center">
+              <CSSTransition
+                in={props.isLoggedIn}
+                timeout={300}
+                classNames="slide-in-icon-left"
+                unmountOnExit>
                 <Grid item>
-                  <Typography variant="h4" className={classes.title}>
-                    Journal
-                  </Typography>
+                  <IconButton color="inherit" onClick={onMenuToggle} className="grow">
+                    <Menu />
+                  </IconButton>
                 </Grid>
+              </CSSTransition>
+              <Grid item>
+                <Typography variant="h4" className={classes.title}>
+                  Journal
+                </Typography>
               </Grid>
             </Grid>
-
-            <Grid item xs>
-              <LoginBar />
-            </Grid>
           </Grid>
-        </AppBar>
 
-        {props.isLoggedIn && (
-          <Drawer open={isOpen} onClose={onMenuClose}>
-            <nav>
-              <List>
-                <ListItem
-                  button
-                  onClick={() => {
-                    goto('/new');
-                  }}
-                >
-                  New
-                </ListItem>
-                <ListItem
-                  button
-                  onClick={() => {
-                    goto('/history');
-                  }}
-                >
-                  History
-                </ListItem>
-              </List>
-            </nav>
-          </Drawer>
-        )}
-      </header>
+          <Grid item xs>
+            <LoginBar />
+          </Grid>
+        </Grid>
+      </AppBar>
+
+      {props.isLoggedIn && (
+        <Drawer open={isOpen} onClose={onMenuClose}>
+          <nav>
+            <List>
+              <ListItem
+                button
+                onClick={() => {
+                  goto('/new');
+                }}
+              >
+                New
+              </ListItem>
+              <ListItem
+                button
+                onClick={() => {
+                  goto('/history');
+                }}
+              >
+                History
+              </ListItem>
+            </List>
+          </nav>
+        </Drawer>
+      )}
+
       <main>
         <Paper className={classes.content}>{props.children}</Paper>
       </main>

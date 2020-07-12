@@ -15,7 +15,7 @@ const useStyle = makeStyles((theme: Theme) => ({
   },
 
   tableContainer: {
-    margin: theme.spacing(2)
+    marginTop: theme.spacing(2)
   }
 }));
 

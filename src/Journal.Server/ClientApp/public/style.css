@@ -1,0 +1,15 @@
+body {
+  height: 100%;
+}
+
+main {
+  height: calc(100% - 50px);
+}
+
+div#root {
+  height: 100%;
+}
+
+html {
+  height: 100%;
+}
