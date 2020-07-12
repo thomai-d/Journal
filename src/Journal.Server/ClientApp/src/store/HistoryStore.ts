@@ -1,7 +1,7 @@
 import { Reducer as HistoryStore } from 'redux';
 import { AppThunkAction } from '.';
 import { Document, queryDocuments } from '../api/documentApi';
-import { explore } from '../api/exploreApi';
+import { explore, GroupByTime } from '../api/exploreApi';
 import * as LoginStore from './LoginStore';
 import { logger } from '../util/logger';
 
@@ -15,6 +15,7 @@ export interface HistoryState {
   exploreQueryInProgress: boolean;
   exploreQueryResult: any;
   exploreQuerySearchError: string;
+  exploreGrouping: GroupByTime;
 }
 
 const defaultState = {
@@ -26,7 +27,8 @@ const defaultState = {
 
   exploreQueryInProgress: false,
   exploreQueryResult: '',
-  exploreQuerySearchError: ''
+  exploreQuerySearchError: '',
+  exploreGrouping: 'day'
 
 } as HistoryState;
 
@@ -50,6 +52,7 @@ export interface DocumentSearchFailed {
 export interface VisualSearchStarted {
   type: 'VISUAL_SEARCH_STARTED';
   searchText: string;
+  grouping: GroupByTime;
 }
 
 export interface VisualSearchSucceeded {
@@ -95,16 +98,17 @@ export const actions = {
     }
   },
 
-  exploreQuery: (searchText: string): AppThunkAction<KnownAction> => async dispatch => {
+  exploreQuery: (searchText: string, group: GroupByTime): AppThunkAction<KnownAction> => async dispatch => {
     dispatch({
       type: 'VISUAL_SEARCH_STARTED',
-      searchText
+      searchText,
+      grouping: group
     });
     
     const tags = searchText === '' ? []  : searchText.split(' ');
 
     try {
-      const result = await explore('year', tags);
+      const result = await explore(group, tags);
       dispatch({
         type: 'VISUAL_SEARCH_SUCCEEDED',
         searchResults: result,
@@ -136,7 +140,7 @@ export const reducer: HistoryStore<HistoryState, KnownAction | LoginStore.KnownA
         return { ...state, documentSearchInProgress: false, documentSearchResults: [], searchText: action.searchText, documentSearchError: action.error };
 
       case 'VISUAL_SEARCH_STARTED':
-        return { ...state, exploreQueryInProgress: true, exploreQueryResult: null, searchText: action.searchText };
+        return { ...state, exploreQueryInProgress: true, exploreQueryResult: null, searchText: action.searchText, exploreGrouping: action.grouping };
       case 'VISUAL_SEARCH_SUCCEEDED':
         return { ...state, exploreQueryInProgress: false, exploreQueryResult: action.searchResults, searchText: action.searchText };
       case 'VISUAL_SEARCH_FAILED':

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { FormControl, InputAdornment, TextField, CircularProgress } from '@material-ui/core';
+import { FormControl, InputAdornment, TextField, CircularProgress, Typography, Select, MenuItem, NativeSelect, InputLabel } from '@material-ui/core';
 import { Theme, makeStyles, Card, CardContent } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { debounce } from '../../util/debounce';
@@ -9,6 +9,8 @@ import * as HistoryStore from '../../store/HistoryStore';
 import { ApplicationState } from '../../store/configureStore';
 import DocumentList from '../controls/DocumentList';
 import MuiAlert from '@material-ui/lab/Alert';
+import { BarChart, XAxis, Bar, Tooltip, CartesianGrid, YAxis } from 'recharts';
+import { GroupByTime } from '../../api/exploreApi';
 
 const useStyle = makeStyles((theme: Theme) => ({
   searchAdornment: {
@@ -36,6 +38,10 @@ const useStyle = makeStyles((theme: Theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%'
+  },
+
+  leftGap: {
+    marginLeft: theme.spacing(1)
   }
 }));
 
@@ -62,71 +68,103 @@ const History = (props: Props & DispatchProps) => {
   const firstSearchText = props.searchText;
   React.useEffect(() => {
     props.searchDocuments(firstSearchText);
-    props.exploreQuery(firstSearchText);
+    props.exploreQuery(firstSearchText, props.exploreGrouping);
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
 
   const onSearchTextChange = React.useCallback(debounce(text => {
     props.searchDocuments(text);
-    props.exploreQuery(firstSearchText);
+    props.exploreQuery(firstSearchText, props.exploreGrouping);
   }, 300), []);
+
+  const onGroupingChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    props.exploreQuery(props.searchText, event.target.value as GroupByTime);
+  }
 
   return (
     <>
-
       <div className={classes.root}>
+        <Card className={classes.card}>
+          <CardContent>
+            <FormControl className={classes.form}>
+              <TextField
+                defaultValue={props.searchText}
+                onChange={(e) => onSearchTextChange(e.currentTarget.value)}
+                label="Filter"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment
+                      position="start"
+                      className={classes.searchAdornment}
+                    >
+                      {props.documentSearchInProgress ? (
+                        <CircularProgress size="1em" />
+                      ) : (
+                        <Search />
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              </FormControl>
 
-      <Card className={classes.card}>
-        <CardContent>
-          <FormControl className={classes.form}>
-            <TextField
-              defaultValue={props.searchText}
-              onChange={(e) => onSearchTextChange(e.currentTarget.value)}
-              label="Filter"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment
-                    position="start"
-                    className={classes.searchAdornment}
-                  >
-                    {props.documentSearchInProgress ? (
-                      <CircularProgress size="1em" />
-                    ) : (
-                      <Search />
-                    )}
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </FormControl>
-        </CardContent>
-      </Card>
+            <FormControl className={`${classes.form} ${classes.leftGap}`}>
+              <InputLabel htmlFor="grouping-select">Grouping</InputLabel>
+              <NativeSelect value={props.exploreGrouping} onChange={onGroupingChange}
+                            inputProps={{
+                              id: 'grouping-select'
+                            }}>
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="year">Year</option>
+              </NativeSelect>
+            </FormControl>
+          </CardContent>
+        </Card>
 
-      <Card className={classes.growingCard}>
-        <CardContent>
-          {props.documentSearchError ? (
-            <MuiAlert
-              className={classes.alert}
-              severity="warning"
-              variant="filled"
-            >
-              <span>{props.documentSearchError}</span>
-            </MuiAlert>
-          ) : (
-            <DocumentList
-              documents={props.documentSearchResults}
-            ></DocumentList>
-          )}
-        </CardContent>
-      </Card>
+        <Card className={classes.growingCard}>
+          <CardContent>
+            {props.documentSearchError ? (
+              <MuiAlert
+                className={classes.alert}
+                severity="warning"
+                variant="filled"
+              >
+                <span>{props.documentSearchError}</span>
+              </MuiAlert>
+            ) : (
+              <DocumentList
+                documents={props.documentSearchResults}
+              ></DocumentList>
+            )}
+          </CardContent>
+        </Card>
 
-      <Card className={classes.growingCard}>
-        <CardContent>
-          <span>{JSON.stringify(props.exploreQueryResult)}</span>
-        </CardContent>
-      </Card>
+        <Card className={classes.growingCard}>
+          <CardContent>
+            {props.exploreQueryResult ? (
+              <BarChart data={props.exploreQueryResult} width={800} height={300}>
+                <XAxis
+                  padding={{ left: 20, right: 100 }}
+                  type="category"
+                  dataKey="key"
+                />
+                <YAxis dataKey="value" width={20} />
+                <CartesianGrid horizontal={false} />
+                <Tooltip />
+                <Bar
+                  dataKey="key"
+                  fill="#ff7300"
+                  maxBarSize={15}
+                  isAnimationActive={false}
+                />
+              </BarChart>
+            ) : (
+              <Typography>No data</Typography>
+            )}
+          </CardContent>
+        </Card>
       </div>
-
     </>
   );
 }
