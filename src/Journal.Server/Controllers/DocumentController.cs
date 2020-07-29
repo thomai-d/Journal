@@ -68,8 +68,8 @@ namespace Journal.Server.Controllers
         /// <summary>
         /// Retrieves all documents matching the given filter.
         /// </summary>
-        [HttpPost("query")]
         /// <response code="200">Returns all matched documents</response>
+        [HttpPost("query")]
         public async Task<ActionResult<Document[]>> PostAsync([FromBody]DocumentQueryFilterParameter filter)
         {
             var username = this.GetUserName();

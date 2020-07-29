@@ -8,6 +8,7 @@ import { Dispatch, AnyAction, bindActionCreators } from 'redux';
 import * as SnackbarStore from '../../store/SnackbarStore';
 import { logger } from '../../util/logger';
 import { ApplicationState } from '../../store/configureStore';
+import { DocumentParser } from '../../util/DocumentParser';
 
 const styles = (theme: Theme) => createStyles({
   form: {
@@ -84,13 +85,18 @@ class NewEntry extends React.Component<Props, State> {
 
   onTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
-    const allTags = text.match(/#[A-Za-z_\-À-ž]+/g);
-    if (!allTags) {
+
+    const obj = DocumentParser.parseObjectValues(text);
+    if (obj) {
+      console.log(obj);
+    }
+
+    const tags = DocumentParser.parseTags(text);
+    if (!tags) {
       this.setState({ tags: [] });
       return;
     }
 
-    const tags = [...new Set(allTags.map(t => t.substr(1)))];
     this.setState({ tags });
   }
 }

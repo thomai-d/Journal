@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 
 namespace Journal.Server.Model
@@ -35,6 +37,9 @@ namespace Journal.Server.Model
 
         [JsonProperty(Required = Required.DisallowNull)]
         public List<string> Tags { get; set; } = new List<string>();
+        
+        [JsonProperty(Required = Required.DisallowNull)]
+        public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
 
         [JsonProperty(Required = Required.DisallowNull)]
         public DateTime Created { get; set; }
@@ -54,6 +59,24 @@ namespace Journal.Server.Model
             var rx = new Regex("#[A-Za-z_\\-À-ž]+");
             var matches = rx.Matches(this.Content);
             this.Tags = matches.Select(m => m.Value.Substring(1)).ToList();
+        }
+
+        public void RebuildValues()
+        {
+            object getValue(string valueStr)
+            {
+                var isDouble = double.TryParse(valueStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var valueDouble);
+                return isDouble ? (object)valueDouble : valueStr;
+            }
+
+            var rx = new Regex(@"\$(?<KEY>[A-Za-z_\-À-ž]+)=(('(?<VALUE2>.+?)')|((?<VALUE1>.+?)(\s|$)))");
+            var matches = rx.Matches(this.Content);
+            this.Values = (from match in matches
+                           let key = match.Groups["KEY"].Value
+                           let valueStr = match.Groups["VALUE2"].Success ? match.Groups["VALUE2"].Value : match.Groups["VALUE1"].Value
+                           let value = getValue(valueStr)
+                           select new { key, value })
+                           .ToDictionary(i => i.key, i => i.value);
         }
     }
 }

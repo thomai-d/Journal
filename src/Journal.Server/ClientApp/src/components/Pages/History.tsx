@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { FormControl, InputAdornment, TextField, CircularProgress, Typography, Select, MenuItem, NativeSelect, InputLabel } from '@material-ui/core';
+import { FormControl, InputAdornment, TextField, CircularProgress, Typography, NativeSelect, InputLabel } from '@material-ui/core';
 import { Theme, makeStyles, Card, CardContent } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { debounce } from '../../util/debounce';

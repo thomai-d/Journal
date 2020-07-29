@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Journal.Server.Model;
 using Xunit;
@@ -18,6 +19,24 @@ namespace Journal.Server.UnitTests.Model
             doc.RebuildTags();
 
             doc.Tags.Should().BeEquivalentTo("hallo", "test", "so-oder-so", "läuft");
+        }
+        
+        [Fact]
+        public void RebuildValues_Test()
+        {
+            var doc = new Document
+            {
+                Content = "#hallo $a=5 $b=hans $c='alles ok' ja?"
+            };
+
+            doc.RebuildValues();
+
+            doc.Values.Should().BeEquivalentTo(new Dictionary<string, object>
+            {
+                { "a", 5.0 },
+                { "b", "hans" },
+                { "c", "alles ok" }
+            });
         }
     }
 }

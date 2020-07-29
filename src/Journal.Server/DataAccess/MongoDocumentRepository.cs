@@ -40,6 +40,7 @@ namespace Journal.Server.DataAccess
         {
             doc.Validate();
             doc.RebuildTags();
+            doc.RebuildValues();
             await this.documents.InsertOneAsync(doc);
             this.logger.LogInformation("Added document {docid}", doc.Id);
         }
