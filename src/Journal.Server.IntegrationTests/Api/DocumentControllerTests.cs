@@ -117,13 +117,13 @@ namespace Journal.Server.IntegrationTests.Api
             await this.testHost.PostAsync("/api/document", new { Content = "#a #b #c?" });
             await this.testHost.PostAsync("/api/document", new { Content = "#b #c #a!" });
 
-            var q1 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Tags = new[] { "a", "b", "c" } });
+            var q1 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Filter = "a b c" });
             q1.Should().HaveCount(2);
             
-            var q2 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Tags = new[] { "a", "b", "c" }, Limit = 1 });
+            var q2 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Filter = "a b c", Limit = 1 });
             q2.Should().HaveCount(1);
             
-            var q3 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Tags = new[] { "z", "b", "c" }, Limit = 1 });
+            var q3 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Filter = "z b c", Limit = 1 });
             q3.Should().HaveCount(0);
             
             var q4 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Limit = 5 });

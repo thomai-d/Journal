@@ -17,13 +17,15 @@ namespace Journal.Server.Controllers
     [Route("api/explore")]
     public class ExploreController : ControllerBase
     {
-        private readonly ILogger<ExploreController> logger;
         private readonly IDocumentRepository docRepo;
+        private readonly ILogger<ExploreController> logger;
+        private readonly IFilterStringParser filterStringParser;
 
-        public ExploreController(ILogger<ExploreController> logger, IDocumentRepository docRepo)
+        public ExploreController(ILogger<ExploreController> logger, IDocumentRepository docRepo, IFilterStringParser filterStringParser)
         {
             this.logger = logger;
             this.docRepo = docRepo;
+            this.filterStringParser = filterStringParser;
         }
 
         /// <summary>
@@ -49,7 +51,8 @@ namespace Journal.Server.Controllers
             param.Validate();
 
             var username = this.GetUserName();
-            var result = await this.docRepo.AggregateAsync(username, param.GroupByTime, param.Aggregate);
+            var filterSettings = this.filterStringParser.Parse(param.Filter);
+            var result = await this.docRepo.AggregateAsync(username, param.GroupByTime, param.Aggregate, filterSettings);
             return this.Ok(result);
         }
     }

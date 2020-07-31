@@ -22,6 +22,8 @@ namespace Journal.Server.Controllers.ApiModel
 
     public class ExploreParameter
     {
+        public string Filter { get; set; } = string.Empty;
+
         public Aggregate Aggregate { get; set; }
 
         public GroupTimeRange GroupByTime { get; set; }

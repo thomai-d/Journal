@@ -45,12 +45,12 @@ namespace Journal.Server.DataAccess
             this.logger.LogInformation("Added document {docid}", doc.Id);
         }
 
-        public async Task<List<Document>> QueryAsync(string author, int limit, params string[] tags)
+        public async Task<List<Document>> QueryAsync(string author, int limit, FilterSettings filterSettings)
         {
             var filter = this.filterBuilder.Empty;
-            if (tags.Length > 0)
+            if (filterSettings.MustHaveTags.Length > 0)
             {
-                filter = filterBuilder.All(doc => doc.Tags, tags);
+                filter = filterBuilder.All(doc => doc.Tags, filterSettings.MustHaveTags);
             }
 
             var doc = await this.GetDocumentsForUserAsync(author, filter, limit);
@@ -77,7 +77,7 @@ namespace Journal.Server.DataAccess
             await this.documents.DeleteManyAsync(builder.Empty);
         }
 
-        public async Task<List<GroupResult>> AggregateAsync(string author, GroupTimeRange groupTimeRange, Aggregate aggregate, params string[] tags)
+        public async Task<List<GroupResult>> AggregateAsync(string author, GroupTimeRange groupTimeRange, Aggregate aggregate, FilterSettings filterSettings)
         {
             var dateFormat = groupTimeRange switch
             {
@@ -89,8 +89,8 @@ namespace Journal.Server.DataAccess
             };
             
             var filter = this.filterBuilder.Empty;
-            if (tags.Length > 0)
-                filter = this.filterBuilder.All(doc => doc.Tags, tags);
+            if (filterSettings.MustHaveTags.Length > 0)
+                filter = this.filterBuilder.All(doc => doc.Tags, filterSettings.MustHaveTags);
             var userFilter = this.filterBuilder.Where(d => d.Author == author);
             var rootFilter = this.filterBuilder.And(userFilter, filter);
 

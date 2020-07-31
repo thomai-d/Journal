@@ -50,19 +50,19 @@ export interface DocumentSearchFailed {
 }
 
 export interface VisualSearchStarted {
-  type: 'VISUAL_SEARCH_STARTED';
+  type: 'EXPLORE_SEARCH_STARTED';
   searchText: string;
   grouping: GroupByTime;
 }
 
 export interface VisualSearchSucceeded {
-  type: 'VISUAL_SEARCH_SUCCEEDED';
+  type: 'EXPLORE_SEARCH_SUCCEEDED';
   searchText: string;
   searchResults: any;
 }
 
 export interface VisualSearchFailed {
-  type: 'VISUAL_SEARCH_FAILED';
+  type: 'EXPLORE_SEARCH_FAILED';
   searchText: string;
   error: string;
 }
@@ -78,10 +78,8 @@ export const actions = {
       searchText
     });
 
-    const tags = searchText === '' ? []  : searchText.split(' ');
-
     try {
-      const result = await queryDocuments(tags);
+      const result = await queryDocuments(searchText);
       dispatch({
         type: 'DOCUMENT_SEARCH_SUCCEEDED',
         searchResults: result,
@@ -100,17 +98,15 @@ export const actions = {
 
   exploreQuery: (searchText: string, group: GroupByTime): AppThunkAction<KnownAction> => async dispatch => {
     dispatch({
-      type: 'VISUAL_SEARCH_STARTED',
+      type: 'EXPLORE_SEARCH_STARTED',
       searchText,
       grouping: group
     });
     
-    const tags = searchText === '' ? []  : searchText.split(' ');
-
     try {
-      const result = await explore(group, tags);
+      const result = await explore(group, searchText);
       dispatch({
-        type: 'VISUAL_SEARCH_SUCCEEDED',
+        type: 'EXPLORE_SEARCH_SUCCEEDED',
         searchResults: result,
         searchText
       });
@@ -118,7 +114,7 @@ export const actions = {
     catch(err) {
       logger.err('Explore query failed', undefined, err);
       dispatch({
-        type: 'VISUAL_SEARCH_FAILED',
+        type: 'EXPLORE_SEARCH_FAILED',
         searchText,
         error: err.message ? err.message : 'Unknown error'
       });
@@ -139,11 +135,11 @@ export const reducer: HistoryStore<HistoryState, KnownAction | LoginStore.KnownA
       case 'DOCUMENT_SEARCH_FAILED':
         return { ...state, documentSearchInProgress: false, documentSearchResults: [], searchText: action.searchText, documentSearchError: action.error };
 
-      case 'VISUAL_SEARCH_STARTED':
+      case 'EXPLORE_SEARCH_STARTED':
         return { ...state, exploreQueryInProgress: true, exploreQueryResult: null, searchText: action.searchText, exploreGrouping: action.grouping };
-      case 'VISUAL_SEARCH_SUCCEEDED':
+      case 'EXPLORE_SEARCH_SUCCEEDED':
         return { ...state, exploreQueryInProgress: false, exploreQueryResult: action.searchResults, searchText: action.searchText };
-      case 'VISUAL_SEARCH_FAILED':
+      case 'EXPLORE_SEARCH_FAILED':
         return { ...state, exploreQueryInProgress: false, exploreQueryResult: null, searchText: action.searchText, exploreQuerySearchError: action.error };
 
       case 'LOGOUT':

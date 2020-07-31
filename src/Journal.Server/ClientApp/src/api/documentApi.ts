@@ -8,8 +8,8 @@ export interface Document {
       created: string
 }
 
-export async function queryDocuments(tags: string[]): Promise<Document[]> {
-  const response = await axios.post<Document[]>('api/document/query', { tags });
+export async function queryDocuments(filter: string): Promise<Document[]> {
+  const response = await axios.post<Document[]>('api/document/query', { filter });
 
   if (response.status === 200) {
     return response.data;

@@ -19,10 +19,11 @@ export interface YearValue {
   value: number;
 }
 
-export async function explore(group: GroupByTime, tags: string[]): Promise<Document[]> {
+export async function explore(group: GroupByTime, filter: string): Promise<Document[]> {
   const response = await axios.post('api/explore', {
     aggregate: 'count',
-    GroupByTime: group
+    GroupByTime: group,
+    searchTokens: filter
   });
 
   if (response.status === 200) {

@@ -5,7 +5,7 @@ namespace Journal.Server.Controllers.ApiModel
 {
     public class DocumentQueryFilterParameter
     {
-        public string[] Tags { get; set; } = Array.Empty<string>();
+        public string Filter { get; set; } = string.Empty;
 
         public int Limit { get; set; } = 30;
 

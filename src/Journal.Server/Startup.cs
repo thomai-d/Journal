@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Journal.Server.DataAccess;
+using Journal.Server.Model;
 using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -59,6 +60,7 @@ namespace Journal.Server
             services.Configure<MongoConfiguration>(Configuration.GetSection(nameof(MongoConfiguration)));
             services.AddSingleton<ILoginProvider, KeycloakLoginProvider>();
             services.AddSingleton<IDocumentRepository, MongoDocumentRepository>();
+            services.AddSingleton<IFilterStringParser, FilterStringParser>();
 
             this.ConfigureCors(services);
             this.ConfigureAuthentication(services);

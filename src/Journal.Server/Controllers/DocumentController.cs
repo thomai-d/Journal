@@ -17,13 +17,15 @@ namespace Journal.Server.Controllers
     [Route("api/document")]
     public class DocumentController : ControllerBase
     {
-        private readonly ILogger<DocumentController> logger;
         private readonly IDocumentRepository docRepo;
+        private readonly ILogger<DocumentController> logger;
+        private readonly IFilterStringParser filterStringParser;
 
-        public DocumentController(ILogger<DocumentController> logger, IDocumentRepository docRepo)
+        public DocumentController(ILogger<DocumentController> logger, IDocumentRepository docRepo, IFilterStringParser filterStringParser)
         {
             this.logger = logger;
             this.docRepo = docRepo;
+            this.filterStringParser = filterStringParser;
         }
 
         /// <summary>
@@ -70,12 +72,13 @@ namespace Journal.Server.Controllers
         /// </summary>
         /// <response code="200">Returns all matched documents</response>
         [HttpPost("query")]
-        public async Task<ActionResult<Document[]>> PostAsync([FromBody]DocumentQueryFilterParameter filter)
+        public async Task<ActionResult<Document[]>> PostAsync([FromBody]DocumentQueryFilterParameter param)
         {
             var username = this.GetUserName();
 
-            filter.Normalize();
-            var docs = await this.docRepo.QueryAsync(username, filter.Limit, filter.Tags);
+            param.Normalize();
+            var filterSettings = this.filterStringParser.Parse(param.Filter);
+            var docs = await this.docRepo.QueryAsync(username, param.Limit, filterSettings);
             return docs.ToArray();
         }
     }

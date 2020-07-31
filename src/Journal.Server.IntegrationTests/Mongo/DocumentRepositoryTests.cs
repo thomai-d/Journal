@@ -4,13 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Castle.Core.Logging;
 using FluentAssertions;
 using Journal.Server.Controllers.ApiModel;
 using Journal.Server.DataAccess;
 using Journal.Server.Model;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -67,12 +64,12 @@ namespace Journal.Server.IntegrationTests.Mongo
             await target.AddAsync(CreateValidDoc());
             await target.AddAsync(CreateValidDoc());
             
-            var docs = await target.QueryAsync("test", 10, "Hallo");
+            var docs = await target.QueryAsync("test", 10, new FilterSettings("Hallo"));
             docs.Count.Should().BeInRange(3, 10);
 
             await target.DeleteAllDocumentsFromAuthorAsync("test");
 
-            docs = await target.QueryAsync("test", 10, "Hallo");
+            docs = await target.QueryAsync("test", 10, new FilterSettings("Hallo"));
             docs.Count.Should().Be(0);
         }
         
@@ -86,16 +83,16 @@ namespace Journal.Server.IntegrationTests.Mongo
             await target.AddAsync(CreateValidDoc("#a #b #d"));
             await target.AddAsync(CreateValidDoc("#a #d #f"));
 
-            var docs = await target.QueryAsync("test", 10, "a", "b");
+            var docs = await target.QueryAsync("test", 10, new FilterSettings("a", "b"));
             docs.Count.Should().Be(2);
             
-            docs = await target.QueryAsync("test", 1, "a", "b");
+            docs = await target.QueryAsync("test", 1, new FilterSettings("a", "b"));
             docs.Count.Should().Be(1);
             
-            docs = await target.QueryAsync("test", 10, "b", "a");
+            docs = await target.QueryAsync("test", 10, new FilterSettings("b", "a"));
             docs.Count.Should().Be(2);
             
-            docs = await target.QueryAsync("test", 10, "f", "b");
+            docs = await target.QueryAsync("test", 10, new FilterSettings("f", "b"));
             docs.Count.Should().Be(0);
         }
         
@@ -109,34 +106,34 @@ namespace Journal.Server.IntegrationTests.Mongo
             await target.AddAsync(CreateValidDoc(content: "#a #c", date: "2020-07-05"));
             await target.AddAsync(CreateValidDoc(content: "#a #b", date: "2019-01-01"));
             
-            (await target.AggregateAsync("test", GroupTimeRange.Day, Aggregate.Count))
+            (await target.AggregateAsync("test", GroupTimeRange.Day, Aggregate.Count, FilterSettings.Empty))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "2020-07-05", Value = 2 },
                     new { Key = "2019-01-01", Value = 1 }
                 });
             
-            (await target.AggregateAsync("test", GroupTimeRange.Week, Aggregate.Count))
+            (await target.AggregateAsync("test", GroupTimeRange.Week, Aggregate.Count, FilterSettings.Empty))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "27/2020", Value = 2 },
                     new { Key = "01/2019", Value = 1 }
                 });
 
-            (await target.AggregateAsync("test", GroupTimeRange.Month, Aggregate.Count))
+            (await target.AggregateAsync("test", GroupTimeRange.Month, Aggregate.Count, FilterSettings.Empty))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "2020-07", Value = 2 },
                     new { Key = "2019-01", Value = 1 }
                 });
             
-            (await target.AggregateAsync("test", GroupTimeRange.Year, Aggregate.Count))
+            (await target.AggregateAsync("test", GroupTimeRange.Year, Aggregate.Count, FilterSettings.Empty))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "2020", Value = 2 },
                     new { Key = "2019", Value = 1 }
                 });
-            (await target.AggregateAsync("test", GroupTimeRange.Year, Aggregate.Count, "a", "b"))
+            (await target.AggregateAsync("test", GroupTimeRange.Year, Aggregate.Count, new FilterSettings("a", "b")))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "2020", Value = 1 },
