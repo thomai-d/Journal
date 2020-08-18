@@ -26,7 +26,7 @@ namespace Journal.Server.UnitTests.Model
         {
             var doc = new Document
             {
-                Content = "#hallo $a=5 $b=hans $c='alles ok' ja?"
+                Content = "#hallo $a=5 $b=hans $c='alles ok' ja? $wert1=5"
             };
 
             doc.RebuildValues();
@@ -35,7 +35,8 @@ namespace Journal.Server.UnitTests.Model
             {
                 { "a", 5.0 },
                 { "b", "hans" },
-                { "c", "alles ok" }
+                { "c", "alles ok" },
+                { "wert1", 5.0 },
             });
         }
     }

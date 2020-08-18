@@ -69,7 +69,7 @@ namespace Journal.Server.Model
                 return isDouble ? (object)valueDouble : valueStr;
             }
 
-            var rx = new Regex(@"\$(?<KEY>[A-Za-z_\-À-ž]+)=(('(?<VALUE2>.+?)')|((?<VALUE1>.+?)(\s|$)))");
+            var rx = new Regex(@"\$(?<KEY>[A-Za-z_\-À-ž0-9]+)=(('(?<VALUE2>.+?)')|((?<VALUE1>.+?)(\s|$)))");
             var matches = rx.Matches(this.Content);
             this.Values = (from match in matches
                            let key = match.Groups["KEY"].Value
