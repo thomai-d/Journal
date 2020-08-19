@@ -15,7 +15,9 @@ namespace Journal.Server.Model
         public FilterSettings Parse(string filterString)
         {
             var parts = filterString.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            return new FilterSettings(parts);
+            var tags = parts.Where(p => !p.StartsWith("$"));
+            var values = parts.Where(p => p.StartsWith("$")).Select(p => p.Substring(1));
+            return new FilterSettings(tags, values);
         }
     }
 }

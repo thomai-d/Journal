@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Core.Infrastructure;
 using System.Linq;
 using Xunit.Sdk;
 using Journal.Server.Controllers.ApiModel;
+using System.Collections.Generic;
 
 namespace Journal.Server.IntegrationTests.Api
 {
@@ -24,19 +25,26 @@ namespace Journal.Server.IntegrationTests.Api
         }
 
         [Fact]
-        public async Task AggregateTests()
+        public async Task Aggregate_Items_ByYear_And_Count_Test()
         {
             await this.testHost.DeleteDocumentsForAuthorAsync("test");
             await this.testHost.InsertDocumentsAsync("test", Doc("#a #b #c"), Doc("#a #b #d"));
 
-            await this.testHost.PostAsync("/api/explore", new { aggregate = "count", groupBy = "month" })
+            await this.testHost.PostAsync("/api/explore", new ExploreParameter { Aggregate = Aggregate.Count, GroupByTime = GroupTimeRange.Year })
                                .ShouldRepondWith(HttpStatusCode.Unauthorized);
 
             await this.testHost.LoginAsync();
             await this.testHost.PostAsync("/api/explore", new ExploreParameter { Aggregate = Aggregate.Count, GroupByTime = GroupTimeRange.Year })
-                               .ShouldRepondWith(HttpStatusCode.OK);
+                               .ShouldRepondWith(HttpStatusCode.OK)
+                               .ShouldHaveContent<List<GroupResult>>(result =>
+                               {
+                                   result.Should().BeEquivalentTo(new[]
+                                   {
+                                       new GroupResult { Key = DateTime.Now.Year.ToString(), Value = 2 }
+                                   });
+                               });
         }
-
+        
         private static Document Doc(string text)
         {
             return new Document

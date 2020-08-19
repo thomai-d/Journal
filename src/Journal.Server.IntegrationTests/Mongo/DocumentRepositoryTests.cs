@@ -95,49 +95,157 @@ namespace Journal.Server.IntegrationTests.Mongo
             docs = await target.QueryAsync("test", 10, new FilterSettings("f", "b"));
             docs.Count.Should().Be(0);
         }
-        
+
         [Fact]
-        public async Task AggregateAsync_Test()
+        public async Task Aggregate_Sum_Tests()
         {
             var target = this.testHost.GetService<IDocumentRepository>();
             await target.DeleteAllDocumentsFromAuthorAsync("test");
 
-            await target.AddAsync(CreateValidDoc(content: "#a #b", date: "2020-07-05"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=5", date: "2020-07-05"));
+            await target.AddAsync(CreateValidDoc(content: "#b $a=3", date: "2020-07-06"));
+            await target.AddAsync(CreateValidDoc(content: "#c $b=10", date: "2020-07-05"));
+
+            (await target.AggregateValuesAsync("test", GroupTimeRange.Day, Aggregate.Sum, FilterSettings.Empty))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new ValuesResult { Key = "a", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07-05", 5 },
+                        { "2020-07-06", 3 },
+                    }},
+                    new ValuesResult { Key = "b", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07-05", 10 },
+                    }},
+                });
+            
+            (await target.AggregateValuesAsync("test", GroupTimeRange.Month, Aggregate.Sum, FilterSettings.Empty))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new ValuesResult { Key = "a", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07", 8 },
+                    }},
+                    new ValuesResult { Key = "b", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07", 10 },
+                    }},
+                });
+            
+            (await target.AggregateValuesAsync("test", GroupTimeRange.Month, Aggregate.Sum, FilterSettings.FilterValues("a")))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new ValuesResult { Key = "a", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07", 8 },
+                    }}
+                });
+            
+            (await target.AggregateValuesAsync("test", GroupTimeRange.Month, Aggregate.Sum, new FilterSettings("a", "b")))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new ValuesResult { Key = "a", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07", 5 },
+                    }}
+                });
+            
+            (await target.AggregateValuesAsync("test", GroupTimeRange.Year, Aggregate.Sum, new FilterSettings("c")))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new ValuesResult { Key = "b", Values = new Dictionary<string, double>
+                    {
+                        { "2020", 10 },
+                    }}
+                });
+        }
+        
+        [Fact]
+        public async Task Aggregate_Avg_Tests()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+            await target.DeleteAllDocumentsFromAuthorAsync("test");
+
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=5", date: "2020-07-05"));
+            await target.AddAsync(CreateValidDoc(content: "#b $a=3", date: "2020-07-06"));
+            await target.AddAsync(CreateValidDoc(content: "#c $b=10", date: "2020-07-05"));
+
+            (await target.AggregateValuesAsync("test", GroupTimeRange.Day, Aggregate.Average, FilterSettings.Empty))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new ValuesResult { Key = "a", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07-05", 5 },
+                        { "2020-07-06", 3 },
+                    }},
+                    new ValuesResult { Key = "b", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07-05", 10 },
+                    }},
+                });
+            
+            (await target.AggregateValuesAsync("test", GroupTimeRange.Month, Aggregate.Average, FilterSettings.Empty))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new ValuesResult { Key = "a", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07", 4 },
+                    }},
+                    new ValuesResult { Key = "b", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07", 10 },
+                    }},
+                });
+        }
+        
+        [Fact]
+        public async Task Aggregate_Count_Tests()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+            await target.DeleteAllDocumentsFromAuthorAsync("test");
+
+            await target.AddAsync(CreateValidDoc(content: "#a #b $v=5", date: "2020-07-05"));
             await target.AddAsync(CreateValidDoc(content: "#a #c", date: "2020-07-05"));
             await target.AddAsync(CreateValidDoc(content: "#a #b", date: "2019-01-01"));
             
-            (await target.AggregateAsync("test", GroupTimeRange.Day, Aggregate.Count, FilterSettings.Empty))
+            (await target.AggregateCountAsync("test", GroupTimeRange.Day, FilterSettings.Empty))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "2020-07-05", Value = 2 },
                     new { Key = "2019-01-01", Value = 1 }
                 });
             
-            (await target.AggregateAsync("test", GroupTimeRange.Week, Aggregate.Count, FilterSettings.Empty))
+            (await target.AggregateCountAsync("test", GroupTimeRange.Week, FilterSettings.Empty))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "27/2020", Value = 2 },
                     new { Key = "01/2019", Value = 1 }
                 });
 
-            (await target.AggregateAsync("test", GroupTimeRange.Month, Aggregate.Count, FilterSettings.Empty))
+            (await target.AggregateCountAsync("test", GroupTimeRange.Month, FilterSettings.Empty))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "2020-07", Value = 2 },
                     new { Key = "2019-01", Value = 1 }
                 });
             
-            (await target.AggregateAsync("test", GroupTimeRange.Year, Aggregate.Count, FilterSettings.Empty))
+            (await target.AggregateCountAsync("test", GroupTimeRange.Year, FilterSettings.Empty))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "2020", Value = 2 },
                     new { Key = "2019", Value = 1 }
                 });
-            (await target.AggregateAsync("test", GroupTimeRange.Year, Aggregate.Count, new FilterSettings("a", "b")))
+            (await target.AggregateCountAsync("test", GroupTimeRange.Year, new FilterSettings("a", "b")))
                 .Should().BeEquivalentTo(new[]
                 {
                     new { Key = "2020", Value = 1 },
                     new { Key = "2019", Value = 1 }
+                });
+            (await target.AggregateCountAsync("test", GroupTimeRange.Day, FilterSettings.FilterValues("v")))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new { Key = "2020-07-05", Value = 1 },
                 });
         }
 

@@ -52,8 +52,19 @@ namespace Journal.Server.Controllers
 
             var username = this.GetUserName();
             var filterSettings = this.filterStringParser.Parse(param.Filter);
-            var result = await this.docRepo.AggregateAsync(username, param.GroupByTime, param.Aggregate, filterSettings);
-            return this.Ok(result);
+
+            if (param.Aggregate == Aggregate.Count)
+            {
+                var result = await this.docRepo.AggregateCountAsync(username, param.GroupByTime, filterSettings);
+                return this.Ok(result);
+            }
+            else if (param.Aggregate == Aggregate.Sum 
+                  || param.Aggregate == Aggregate.Average)
+            {
+                var result = await this.docRepo.AggregateValuesAsync(username, param.GroupByTime, param.Aggregate, filterSettings);
+                return this.Ok(result);
+            }
+            else throw new NotImplementedException("TODO");
         }
     }
 }

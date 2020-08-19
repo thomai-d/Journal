@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { FormControl, InputAdornment, TextField, CircularProgress, Typography, NativeSelect, InputLabel } from '@material-ui/core';
+import { FormControl, InputAdornment, TextField, CircularProgress, Typography, NativeSelect, InputLabel, CardHeader } from '@material-ui/core';
 import { Theme, makeStyles, Card, CardContent } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { debounce } from '../../util/debounce';
@@ -81,6 +81,8 @@ const History = (props: Props & DispatchProps) => {
     props.exploreQuery(props.searchText, event.target.value as GroupByTime);
   }
 
+  console.log(props.exploreQueryResult);
+
   return (
     <>
       <div className={classes.root}>
@@ -107,18 +109,6 @@ const History = (props: Props & DispatchProps) => {
                 }}
               />
               </FormControl>
-
-            <FormControl className={`${classes.form} ${classes.leftGap}`}>
-              <InputLabel htmlFor="grouping-select">Grouping</InputLabel>
-              <NativeSelect value={props.exploreGrouping} onChange={onGroupingChange}
-                            inputProps={{
-                              id: 'grouping-select'
-                            }}>
-                <option value="day">Day</option>
-                <option value="week">Week</option>
-                <option value="year">Year</option>
-              </NativeSelect>
-            </FormControl>
           </CardContent>
         </Card>
 
@@ -143,25 +133,39 @@ const History = (props: Props & DispatchProps) => {
         <Card className={classes.growingCard}>
           <CardContent>
             {props.exploreQueryResult ? (
-              <BarChart data={props.exploreQueryResult} width={800} height={300}>
+              <BarChart data={props.exploreQueryResult} width={800} height={300}
+                        layout="horizontal" barCategoryGap={10}>
                 <XAxis
-                  padding={{ left: 20, right: 100 }}
                   type="category"
                   dataKey="key"
                 />
-                <YAxis dataKey="value" width={20} />
+                <YAxis dataKey="value" width={20} type="number" />
                 <CartesianGrid horizontal={false} />
                 <Tooltip />
                 <Bar
+                  barSize={10}
+                  stroke="#8884d8"
                   dataKey="key"
                   fill="#ff7300"
-                  maxBarSize={15}
                   isAnimationActive={false}
                 />
               </BarChart>
             ) : (
               <Typography>No data</Typography>
             )}
+
+            <br />
+            <FormControl className={`${classes.form} ${classes.leftGap}`}>
+              <InputLabel htmlFor="grouping-select">Grouping</InputLabel>
+              <NativeSelect value={props.exploreGrouping} onChange={onGroupingChange}
+                            inputProps={{
+                              id: 'grouping-select'
+                            }}>
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="year">Year</option>
+              </NativeSelect>
+            </FormControl>
           </CardContent>
         </Card>
       </div>

@@ -7,7 +7,8 @@ namespace Journal.Server.Controllers.ApiModel
     public enum Aggregate
     {
         Undefined,
-
+        Sum,
+        Average,
         Count
     }
 

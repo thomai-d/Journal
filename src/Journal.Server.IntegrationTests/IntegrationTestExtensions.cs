@@ -24,5 +24,14 @@ namespace Journal.Server.IntegrationTests
             response.StatusCode.Should().Be(code);
             return response;
         }
+        
+        public static async Task<HttpResponseMessage> ShouldHaveContent<T>(this Task<HttpResponseMessage> responseTask, Action<T> predicate)
+        {
+            var response = await responseTask;
+            var str = await response.Content.ReadAsStringAsync();
+            var obj = JsonConvert.DeserializeObject<T>(str);
+            predicate(obj);
+            return response;
+        }
     }
 }

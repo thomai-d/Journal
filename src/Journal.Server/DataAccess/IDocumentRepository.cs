@@ -17,6 +17,8 @@ namespace Journal.Server.DataAccess
 
         Task DeleteAllDocumentsFromAuthorAsync(string author);
 
-        Task<List<GroupResult>> AggregateAsync(string author, GroupTimeRange groupTimeRange, Aggregate aggregate, FilterSettings filterSettings);
+        Task<List<GroupResult>> AggregateCountAsync(string author, GroupTimeRange groupTimeRange, FilterSettings filterSettings);
+        
+        Task<List<ValuesResult>> AggregateValuesAsync(string author, GroupTimeRange groupTimeRange, Aggregate aggregation, FilterSettings filterSettings);
     }
 }
