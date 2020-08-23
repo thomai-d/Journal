@@ -97,6 +97,22 @@ namespace Journal.Server.IntegrationTests.Mongo
         }
 
         [Fact]
+        public async Task Insert_Demo_Data()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+            await target.DeleteAllDocumentsFromAuthorAsync("test");
+
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=1", date: "2020-07-01"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=2", date: "2020-07-02"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=3", date: "2020-07-03"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=4", date: "2020-07-04"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=3", date: "2020-07-05"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=2", date: "2020-07-06"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=1", date: "2020-07-07"));
+            await target.AddAsync(CreateValidDoc(content: "#a #b $a=0", date: "2020-07-08"));
+        }
+
+        [Fact]
         public async Task Aggregate_Sum_Tests()
         {
             var target = this.testHost.GetService<IDocumentRepository>();

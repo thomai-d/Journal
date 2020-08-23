@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { FormControl, InputAdornment, TextField, CircularProgress, Typography, NativeSelect, InputLabel, CardHeader } from '@material-ui/core';
+import { FormControl, InputAdornment, TextField, CircularProgress, Typography, NativeSelect, InputLabel } from '@material-ui/core';
 import { Theme, makeStyles, Card, CardContent } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { debounce } from '../../util/debounce';
@@ -9,8 +9,8 @@ import * as HistoryStore from '../../store/HistoryStore';
 import { ApplicationState } from '../../store/configureStore';
 import DocumentList from '../controls/DocumentList';
 import MuiAlert from '@material-ui/lab/Alert';
-import { BarChart, XAxis, Bar, Tooltip, CartesianGrid, YAxis } from 'recharts';
 import { GroupByTime } from '../../api/exploreApi';
+import { Chart } from 'react-google-charts';
 
 const useStyle = makeStyles((theme: Theme) => ({
   searchAdornment: {
@@ -82,7 +82,7 @@ const History = (props: Props & DispatchProps) => {
   }
 
   console.log(props.exploreQueryResult);
-
+  
   return (
     <>
       <div className={classes.root}>
@@ -91,7 +91,7 @@ const History = (props: Props & DispatchProps) => {
             <FormControl className={classes.form}>
               <TextField
                 defaultValue={props.searchText}
-                onChange={(e) => onSearchTextChange(e.currentTarget.value)}
+                onChange={(e:any) => onSearchTextChange(e.currentTarget.value)}
                 label="Filter"
                 InputProps={{
                   startAdornment: (
@@ -133,23 +133,9 @@ const History = (props: Props & DispatchProps) => {
         <Card className={classes.growingCard}>
           <CardContent>
             {props.exploreQueryResult ? (
-              <BarChart data={props.exploreQueryResult} width={800} height={300}
-                        layout="horizontal" barCategoryGap={10}>
-                <XAxis
-                  type="category"
-                  dataKey="key"
-                />
-                <YAxis dataKey="value" width={20} type="number" />
-                <CartesianGrid horizontal={false} />
-                <Tooltip />
-                <Bar
-                  barSize={10}
-                  stroke="#8884d8"
-                  dataKey="key"
-                  fill="#ff7300"
-                  isAnimationActive={false}
-                />
-              </BarChart>
+              <Chart width={800} height={300} chartType="LineChart" loader={<div>Loading...</div>}
+                     data={props.exploreQueryResult}>
+              </Chart>
             ) : (
               <Typography>No data</Typography>
             )}

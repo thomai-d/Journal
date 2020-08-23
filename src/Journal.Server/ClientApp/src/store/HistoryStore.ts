@@ -4,6 +4,7 @@ import { Document, queryDocuments } from '../api/documentApi';
 import { explore, GroupByTime } from '../api/exploreApi';
 import * as LoginStore from './LoginStore';
 import { logger } from '../util/logger';
+import { resultToChartData } from '../util/google-chart-helper';
 
 export interface HistoryState {
   searchText: string;
@@ -105,9 +106,11 @@ export const actions = {
     
     try {
       const result = await explore(group, searchText);
+      const chartData = resultToChartData(result);
+
       dispatch({
         type: 'EXPLORE_SEARCH_SUCCEEDED',
-        searchResults: result,
+        searchResults: chartData,
         searchText
       });
     }
