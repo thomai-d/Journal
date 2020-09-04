@@ -51,8 +51,9 @@ class NewEntry extends React.Component<Props, State> {
       <>
         <form noValidate autoComplete="off" className={classes.form}
               onSubmit={this.onSubmit}>
-              <TextField multiline name="content" rows="10" variant="outlined" fullWidth
-                        className={classes.inputArea} onChange={this.onTextChange}></TextField>
+              <TextField multiline autoFocus name="content" rows="10" variant="outlined" fullWidth
+                        className={classes.inputArea} onChange={this.onTextChange}>
+              </TextField>
 
               <IconButton type="submit">
                 <Save color="primary" fontSize="large" />

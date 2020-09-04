@@ -5,6 +5,7 @@ export interface Document {
       author: string,
       content: string,
       tags: string[],
+      values: { [key: string]: number }[],
       created: string
 }
 

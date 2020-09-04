@@ -11,6 +11,7 @@ import DocumentList from '../controls/DocumentList';
 import MuiAlert from '@material-ui/lab/Alert';
 import { GroupByTime } from '../../api/exploreApi';
 import { Chart } from 'react-google-charts';
+import { useEffect } from 'react';
 
 const useStyle = makeStyles((theme: Theme) => ({
   searchAdornment: {
@@ -66,7 +67,7 @@ const History = (props: Props & DispatchProps) => {
 
   /* eslint-disable react-hooks/exhaustive-deps */
   const firstSearchText = props.searchText;
-  React.useEffect(() => {
+  useEffect(() => {
     props.searchDocuments(firstSearchText);
     props.exploreQuery(firstSearchText, props.exploreGrouping);
   }, []);
@@ -81,29 +82,18 @@ const History = (props: Props & DispatchProps) => {
     props.exploreQuery(props.searchText, event.target.value as GroupByTime);
   }
 
-  console.log(props.exploreQueryResult);
-  
   return (
     <>
       <div className={classes.root}>
         <Card className={classes.card}>
           <CardContent>
             <FormControl className={classes.form}>
-              <TextField
-                defaultValue={props.searchText}
-                onChange={(e:any) => onSearchTextChange(e.currentTarget.value)}
-                label="Filter"
-                InputProps={{
+              <TextField defaultValue={props.searchText}
+                onChange={(e: any) => onSearchTextChange(e.currentTarget.value)}
+                label="Filter" autoFocus InputProps={{
                   startAdornment: (
-                    <InputAdornment
-                      position="start"
-                      className={classes.searchAdornment}
-                    >
-                      {props.documentSearchInProgress ? (
-                        <CircularProgress size="1em" />
-                      ) : (
-                        <Search />
-                      )}
+                    <InputAdornment position="start" className={classes.searchAdornment}>
+                      {props.documentSearchInProgress ? (<CircularProgress size="1em" />) : (<Search />)}
                     </InputAdornment>
                   ),
                 }}
@@ -115,17 +105,11 @@ const History = (props: Props & DispatchProps) => {
         <Card className={classes.growingCard}>
           <CardContent>
             {props.documentSearchError ? (
-              <MuiAlert
-                className={classes.alert}
-                severity="warning"
-                variant="filled"
-              >
+              <MuiAlert className={classes.alert} severity="warning" variant="filled" >
                 <span>{props.documentSearchError}</span>
               </MuiAlert>
             ) : (
-              <DocumentList
-                documents={props.documentSearchResults}
-              ></DocumentList>
+              <DocumentList documents={props.documentSearchResults} ></DocumentList>
             )}
           </CardContent>
         </Card>

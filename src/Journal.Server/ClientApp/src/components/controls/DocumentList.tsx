@@ -17,6 +17,7 @@ type Props = {
 export default (props: Props) => {
 
   const classes = useStyle();
+  console.log(props);
 
   return (<>
       <TableContainer component={Paper} className={classes.tableContainer}>
@@ -26,6 +27,7 @@ export default (props: Props) => {
               <TableRow key={item.id}>
                 <TableCell>{item.content}</TableCell>
                 <TableCell padding="none"><TagList tags={item.tags} /></TableCell>
+                <TableCell padding="none"><TagList tags={Object.keys(item.values)} /></TableCell>
                 <TableCell>{printDate(item.created)}</TableCell>
               </TableRow>
             ))}
