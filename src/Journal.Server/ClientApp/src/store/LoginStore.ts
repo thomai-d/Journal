@@ -1,20 +1,20 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import { login } from '../api/loginApi';
-import jwt_decode from 'jwt-decode';
-import axios from 'axios';
 import { RehydrateAction } from 'redux-persist';
+import { TokenService, Tokens } from '../api/TokenService';
 import { ApplicationState } from './configureStore';
 
 export interface LoginState {
-  accessToken?: string;
+  tokens?: Tokens;
   username?: string;
   isLoggedIn: boolean;
 }
 
 export interface LoginSuccess {
   type: 'LOGIN_SUCCESS',
-  accessToken: string,
+  tokens?: Tokens,
+  expiry: Date,
   username: string;
 }
 
@@ -26,32 +26,30 @@ export interface Logout {
   type: 'LOGOUT',
 }
 
-interface AccessToken {
-  preferred_username: string;
-}
-
 export type KnownAction = LoginSuccess | LoginFailed | Logout | RehydrateAction;
 
 export const actions = {
   login: (username: string, password: string): AppThunkAction<KnownAction, Promise<boolean>> => async (dispatch) => {
     try {
-      const loginResult = await login(username, password);
-      const token = jwt_decode(loginResult.accessToken) as AccessToken;
+      const tokens = await login(username, password);
+      TokenService.setTokens(tokens);
 
       dispatch ({
         type: 'LOGIN_SUCCESS',
-        accessToken: loginResult.accessToken,
-        username: token.preferred_username
+        username: TokenService.getUsername(),
+        tokens: tokens,
       } as LoginSuccess);
       return true;
     }
     catch (err) {
+      TokenService.clearTokens();
       dispatch ({ type: 'LOGIN_FAILED' } as LoginFailed);
       return false;
     }
   },
 
   logout: (): AppThunkAction<KnownAction> => async (dispatch) => {
+    TokenService.clearTokens();
     dispatch({ type: 'LOGOUT' });
   }
 }
@@ -66,25 +64,21 @@ export const reducer: Reducer<LoginState> = (state: LoginState | undefined, acti
   switch (action.type) {
     case 'persist/REHYDRATE':
       const lastState = action.payload as ApplicationState;
-      const token = lastState?.login.accessToken;
-      if (token) {
-        axios.defaults.headers.common = { 'Authorization': `bearer ${token}` }
-      }
-
-      return state;
+      return lastState.login;
 
     case 'LOGIN_SUCCESS':
-      axios.defaults.headers.common = { 'Authorization': `bearer ${action.accessToken}` }
       return {
         ...state,
-        accessToken: action.accessToken,
+        tokens: action.tokens,
         username: action.username,
-        isLoggedIn: !!action.accessToken
+        isLoggedIn: !!action.tokens,
       };
+
     case 'LOGIN_FAILED':
-      return { ...state, accessToken: undefined, username: undefined, isLoggedIn: false };
+      return { ...state, tokens: undefined, username: undefined, isLoggedIn: false };
+
     case 'LOGOUT':
-      return { ...state, accessToken: undefined, username: undefined, isLoggedIn: false };
+      return { ...state, tokens: undefined, username: undefined, isLoggedIn: false };
   }
 
   return state;

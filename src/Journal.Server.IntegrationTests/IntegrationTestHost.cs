@@ -83,7 +83,7 @@ namespace Journal.Server.IntegrationTests
                 Password = "test"
             });
 
-            var result = await response.As<LoginResult>();
+            var result = await response.As<Tokens>();
             this.Client.DefaultRequestHeaders.Add("Authorization", $"Bearer {result.AccessToken}");
             var isAuthenticated = await this.GetAsync<bool>("/api/login/isAuthenticated");
             isAuthenticated.Should().BeTrue();

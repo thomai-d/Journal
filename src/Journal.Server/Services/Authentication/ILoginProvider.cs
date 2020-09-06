@@ -7,6 +7,8 @@ namespace Journal.Server.Services.Authentication
 {
     public interface ILoginProvider
     {
-        Task<LoginResult> LoginAsync(string username, string password);
+        Task<Tokens> LoginAsync(string username, string password);
+
+        Task<Tokens> RefreshTokenAsync(string refreshToken);
     }
 }

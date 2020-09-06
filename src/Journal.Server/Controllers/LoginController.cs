@@ -32,7 +32,7 @@ namespace Journal.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesErrorResponseType(typeof(void))]
-        public async Task<ActionResult<LoginResult>> LoginAsync([FromBody]LoginParameter param)
+        public async Task<ActionResult<Tokens>> LoginAsync([FromBody]LoginParameter param)
         {
             if (string.IsNullOrEmpty(param.User)
              || string.IsNullOrEmpty(param.Password))

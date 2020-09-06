@@ -1,11 +1,8 @@
 import axios from 'axios';
+import { Tokens } from './TokenService';
 
-export interface LoginResult {
-  accessToken: string;
-}
-
-export async function login(username: string, password: string): Promise<LoginResult> {
-  const response = await axios.post<LoginResult>('api/login', { user: username, password });
+export async function login(username: string, password: string): Promise<Tokens> {
+  const response = await axios.post<Tokens>('api/login', { user: username, password });
   if (response.status === 200) {
     return response.data;
   }

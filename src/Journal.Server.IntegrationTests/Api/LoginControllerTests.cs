@@ -32,7 +32,7 @@ namespace Journal.Server.IntegrationTests.Api
                 Password = "test"
             });
 
-            var result = await response.As<LoginResult>();
+            var result = await response.As<Tokens>();
             result.IdToken.Should().NotBeEmpty();
             result.RefreshToken.Should().NotBeEmpty();
             result.AccessToken.Should().NotBeEmpty();

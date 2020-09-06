@@ -1,11 +1,13 @@
 import axios from 'axios';
 
+export type NumberDict = { [key: string]: number };
+
 export interface Document {
       id: string,
       author: string,
       content: string,
       tags: string[],
-      values: { [key: string]: number }[],
+      values: NumberDict,
       created: string
 }
 

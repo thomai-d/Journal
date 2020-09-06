@@ -22,7 +22,7 @@ namespace Journal.Server.Services.Authentication
             this.logger = logger;
         }
 
-        public async Task<LoginResult> LoginAsync(string username, string password)
+        public async Task<Tokens> LoginAsync(string username, string password)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace Journal.Server.Services.Authentication
                                     {
                                         client_id = this.config.ClientId,
                                         grant_type = "password",
-                                        scope = "openid",
+                                        scope = "openid offline_access",
                                         username, password,
                                         client_secret = this.config.ClientSecret
                                     })
@@ -39,7 +39,7 @@ namespace Journal.Server.Services.Authentication
 
                 this.logger.LogInformation("Generated token for {user}", username);
 
-                return new LoginResult()
+                return new Tokens()
                 {
                     AccessToken = result.AccessToken,
                     IdToken = result.IdToken,
@@ -49,7 +49,38 @@ namespace Journal.Server.Services.Authentication
             catch (FlurlHttpException ex) when (ex.Call.HttpStatus == HttpStatusCode.Unauthorized)
             {
                 this.logger.LogWarning("Token generation failed for {user}", username);
-                throw new AuthenticationException("Keycloak server returned 401");
+                throw new AuthenticationException("Login - Keycloak server returned 401");
+            }
+        }
+
+        public async Task<Tokens> RefreshTokenAsync(string refreshToken)
+        {
+            try
+            {
+                var result = await this.config.TokenUrl
+                                    .PostUrlEncodedAsync(new
+                                    {
+                                        client_id = this.config.ClientId,
+                                        grant_type = "refresh_token",
+                                        scope = "openid offline_access",
+                                        client_secret = this.config.ClientSecret,
+                                        refresh_token = refreshToken,
+                                    })
+                                    .ReceiveJson<KeycloakLoginResult>();
+
+                this.logger.LogInformation("Token refreshed");
+
+                return new Tokens()
+                {
+                    AccessToken = result.AccessToken,
+                    IdToken = result.IdToken,
+                    RefreshToken = result.RefreshToken
+                };
+            }
+            catch (FlurlHttpException ex) when (ex.Call.HttpStatus == HttpStatusCode.Unauthorized)
+            {
+                this.logger.LogWarning("Token refresh failed");
+                throw new AuthenticationException("TokenRefresh - Keycloak server returned 401");
             }
         }
     }

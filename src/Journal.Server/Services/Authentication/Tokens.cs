@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Journal.Server.Services.Authentication
 {
-    public class LoginResult
+    public class Tokens
     {
         public string AccessToken { get; set; }
 
