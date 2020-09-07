@@ -72,10 +72,24 @@ namespace Journal.Server.IntegrationTests.Api
         }
         
         [Fact]
-        public async Task AuthToken_Should_Have_Some_Fields()
+        public async Task AccessToken_Should_Meet_Some_Requirements()
         {
             await this.testHost.LoginAsync();
             this.testHost.AccessToken.Audiences.Should().Contain("journal-api");
+            this.testHost.AccessToken.ValidTo.Should().BeBefore(DateTime.Now.AddMinutes(10));
+            this.testHost.RefreshToken.ValidTo.Should().BeAfter(DateTime.Now.AddDays(14));
+        }
+        
+        [Fact]
+        public async Task RefreshToken_Should_Provide_An_Updated_Access_Token()
+        {
+            await this.testHost.LoginAsync();
+            var validTo = this.testHost.AccessToken.ValidTo;
+
+            await Task.Delay(1000);
+
+            await this.testHost.RefreshTokenAsync();
+            this.testHost.AccessToken.ValidTo.Should().BeAfter(validTo);
         }
     }
 }

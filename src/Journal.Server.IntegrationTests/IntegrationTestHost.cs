@@ -32,6 +32,8 @@ namespace Journal.Server.IntegrationTests
         public HttpClient Client { get; }
 
         public JwtSecurityToken AccessToken { get; private set; }
+        public JwtSecurityToken RefreshToken { get; private set; }
+        public JwtSecurityToken IdToken { get; private set; }
 
         public T GetService<T>()
         {
@@ -90,12 +92,35 @@ namespace Journal.Server.IntegrationTests
 
             var handler = new JwtSecurityTokenHandler();
             this.AccessToken = handler.ReadToken(result.AccessToken) as JwtSecurityToken;
+            this.RefreshToken = handler.ReadToken(result.RefreshToken) as JwtSecurityToken;
+            this.IdToken = handler.ReadToken(result.IdToken) as JwtSecurityToken;
+        }
+        
+        public async Task RefreshTokenAsync()
+        {
+            var response = await this.PostAsync("/api/login/refresh", new RefreshTokenParameter
+            {
+                RefreshToken = this.RefreshToken.RawData
+            });
+
+            var result = await response.As<Tokens>();
+            this.Client.DefaultRequestHeaders.Clear();
+            this.Client.DefaultRequestHeaders.Add("Authorization", $"Bearer {result.AccessToken}");
+            var isAuthenticated = await this.GetAsync<bool>("/api/login/isAuthenticated");
+            isAuthenticated.Should().BeTrue();
+
+            var handler = new JwtSecurityTokenHandler();
+            this.AccessToken = handler.ReadToken(result.AccessToken) as JwtSecurityToken;
+            this.RefreshToken = handler.ReadToken(result.RefreshToken) as JwtSecurityToken;
+            this.IdToken = handler.ReadToken(result.IdToken) as JwtSecurityToken;
         }
 
         public void Logout()
         {
             this.Client.DefaultRequestHeaders.Clear();
             this.AccessToken = null;
+            this.RefreshToken = null;
+            this.IdToken = null;
         }
         
         protected override void ConfigureWebHost(IWebHostBuilder builder)

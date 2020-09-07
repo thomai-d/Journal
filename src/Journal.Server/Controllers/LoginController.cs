@@ -24,7 +24,7 @@ namespace Journal.Server.Controllers
         }
 
         /// <summary>
-        /// Login with username and password and retrieve access and id token.
+        /// Login with username and password and retrieve access, refresh and id token.
         /// </summary>
         /// <response code="200">Authentication successful</response>
         /// <response code="401">Authentication failed</response>
@@ -43,6 +43,33 @@ namespace Journal.Server.Controllers
             try
             {
                 var loginResult = await this.loginProvider.LoginAsync(param.User, param.Password);
+                return this.Ok(loginResult);
+            }
+            catch (AuthenticationException)
+            {
+                return this.Unauthorized();
+            }
+        }
+
+        /// <summary>
+        /// Gets a refreshed access token by providing the refresh token.
+        /// </summary>
+        /// <response code="200">Authentication successful</response>
+        /// <response code="401">Authentication failed</response>
+        [HttpPost("refresh")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesErrorResponseType(typeof(void))]
+        public async Task<ActionResult<Tokens>> RefreshAccessAsync([FromBody]RefreshTokenParameter param)
+        {
+            if (string.IsNullOrEmpty(param.RefreshToken))
+            {
+                return this.BadRequest(new { error = "RefreshToken is not set" });
+            }
+
+            try
+            {
+                var loginResult = await this.loginProvider.RefreshTokenAsync(param.RefreshToken);
                 return this.Ok(loginResult);
             }
             catch (AuthenticationException)
