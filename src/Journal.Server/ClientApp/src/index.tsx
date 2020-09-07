@@ -6,7 +6,7 @@ import history from './router/history';
 import configureStore from './store/configureStore';
 import App from './App';
 import axios from 'axios';
-import { TokenService } from './api/TokenService';
+import { TokenService } from './api';
 
 import './animations.css';
 import { PersistGate } from 'redux-persist/integration/react';

@@ -9,7 +9,7 @@ import * as HistoryStore from '../../store/HistoryStore';
 import { ApplicationState } from '../../store/configureStore';
 import DocumentList from '../controls/DocumentList';
 import MuiAlert from '@material-ui/lab/Alert';
-import { GroupByTime } from '../../api/exploreApi';
+import { GroupByTime } from '../../api';
 import { Chart } from 'react-google-charts';
 import { useEffect } from 'react';
 

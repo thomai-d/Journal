@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Theme, makeStyles, TableContainer, Table, TableBody, TableCell, TableRow, Paper } from '@material-ui/core';
 import { printDate } from '../../util/printDate';
 import TagList from '../controls/TagList';
-import { Document } from '../../api/documentApi';
+import { Document } from '../../api';
 
 const useStyle = makeStyles((theme: Theme) => ({
   tableContainer: {
@@ -17,8 +17,6 @@ type Props = {
 export default (props: Props) => {
 
   const classes = useStyle();
-  console.log(props);
-
   return (<>
       <TableContainer component={Paper} className={classes.tableContainer}>
         <Table>

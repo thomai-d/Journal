@@ -1,8 +1,7 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
-import { login } from '../api/loginApi';
 import { RehydrateAction } from 'redux-persist';
-import { TokenService, Tokens } from '../api/TokenService';
+import { login, TokenService, Tokens } from '../api';
 import { ApplicationState } from './configureStore';
 
 export interface LoginState {
@@ -64,6 +63,8 @@ export const reducer: Reducer<LoginState> = (state: LoginState | undefined, acti
   switch (action.type) {
     case 'persist/REHYDRATE':
       const lastState = action.payload as ApplicationState;
+      if (!lastState)
+        return state;
       return lastState.login;
 
     case 'LOGIN_SUCCESS':

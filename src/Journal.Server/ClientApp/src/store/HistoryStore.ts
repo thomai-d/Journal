@@ -1,7 +1,7 @@
 import { Reducer as HistoryStore } from 'redux';
 import { AppThunkAction } from '.';
-import { Document, queryDocuments } from '../api/documentApi';
-import { explore, GroupByTime } from '../api/exploreApi';
+import { queryDocuments } from '../api/endpoints';
+import { explore, Document, GroupByTime } from '../api';
 import * as LoginStore from './LoginStore';
 import { logger } from '../util/logger';
 import { resultToChartData } from '../util/google-chart-helper';

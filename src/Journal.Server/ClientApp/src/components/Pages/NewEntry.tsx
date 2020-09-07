@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { TextField, IconButton, createStyles, Paper, WithStyles, Theme, withStyles } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
 import TagList from '../controls/TagList';
-import { addDocument } from '../../api/documentApi';
+import { addDocument } from '../../api';
 import { Dispatch, AnyAction, bindActionCreators } from 'redux';
 import * as SnackbarStore from '../../store/SnackbarStore';
 import { logger } from '../../util/logger';
@@ -32,6 +32,7 @@ type Props = WithStyles<typeof styles> & ReturnType<typeof dispatchToProps> & {
 
 interface State {
   tags: string[];
+  values: string[];
 };
 
 class NewEntry extends React.Component<Props, State> {
@@ -39,7 +40,8 @@ class NewEntry extends React.Component<Props, State> {
   constructor(props: any) {
     super(props);
     this.state = {
-      tags: []
+      tags: [],
+      values: []
     }
   }
 
@@ -61,7 +63,8 @@ class NewEntry extends React.Component<Props, State> {
         </form>
 
         <Paper>
-          <TagList tags={this.state.tags} />
+          <TagList tags={this.state.tags} /><br />
+          <TagList tags={this.state.values} />
         </Paper>
       </>
     );
@@ -87,18 +90,10 @@ class NewEntry extends React.Component<Props, State> {
   onTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
 
-    const obj = DocumentParser.parseObjectValues(text);
-    if (obj) {
-      console.log(obj);
-    }
-
+    const values = DocumentParser.parseObjectValues(text) ?? {};
     const tags = DocumentParser.parseTags(text);
-    if (!tags) {
-      this.setState({ tags: [] });
-      return;
-    }
 
-    this.setState({ tags });
+    this.setState({ tags, values: Object.keys(values) });
   }
 }
 

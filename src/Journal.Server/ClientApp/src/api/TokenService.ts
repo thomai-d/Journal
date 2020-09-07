@@ -1,5 +1,7 @@
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
+import { appConfig } from '../appConfig';
+import { logger } from '../util/logger';
 
 export interface Tokens {
   idToken: string;
@@ -31,13 +33,13 @@ class _TokenService {
 
     const accessTokenExpiry = new Date(accessToken.exp * 1000);
     const refreshTokenExpiry = new Date(refreshToken.exp * 1000);
-    console.log(`${accessToken.preferred_username} logged in `);
-    console.log(`Login token valid until ${accessTokenExpiry}`);
-    console.log(`Refresh token valid until ${refreshTokenExpiry}`);
-    console.log(tokens.refreshToken);
+    logger.info(`${accessToken.preferred_username} logged in `);
+    logger.debug(`Login token valid until ${accessTokenExpiry}`);
+    logger.debug(`Refresh token valid until ${refreshTokenExpiry}`);
 
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
+    this.tokens = tokens;
     axios.defaults.headers.common = { 'Authorization': `bearer ${tokens.accessToken}` };
   }
 
@@ -47,6 +49,24 @@ class _TokenService {
 
   getUsername(): string {
     return this.accessToken!.preferred_username;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.tokens;
+  }
+
+  accessTokenNeedsRefresh(): boolean {
+    if (!this.accessToken)
+      throw new Error('No access token present');
+
+    const accessTokenExpiry = new Date(this.accessToken.exp * 1000);
+    return new Date() > new Date(accessTokenExpiry.getTime() - appConfig.accessTokenRefreshBeforeInvalid);
+  }
+
+  getRefreshToken(): string {
+    if (!this.tokens)
+      throw new Error('No refresh token present');
+    return this.tokens.refreshToken;
   }
 }
 

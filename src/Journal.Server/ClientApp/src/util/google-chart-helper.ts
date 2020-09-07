@@ -1,4 +1,4 @@
-import { ValuesResult } from '../api/exploreApi';
+import { ValuesResult } from '../api';
 
 export function resultToChartData(result: ValuesResult[]) {
       const keys = result.map(i => i.key);

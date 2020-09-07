@@ -1,4 +1,13 @@
-import axios from 'axios';
+export type NumberDict = { [key: string]: number };
+
+export interface Document {
+      id: string,
+      author: string,
+      content: string,
+      tags: string[],
+      values: NumberDict,
+      created: string
+}
 
 export type GroupByTime = 'day' | 'week' | 'month' | 'year';
 
@@ -26,18 +35,4 @@ export interface ValuesResult {
 
 export interface ExploreResult {
 
-}
-
-export async function explore(group: GroupByTime, filter: string): Promise<ValuesResult[]> {
-  const response = await axios.post('api/explore', {
-    aggregate: 'sum',
-    GroupByTime: group,
-    searchTokens: filter
-  });
-
-  if (response.status === 200) {
-    return response.data;
-  }
- 
-  throw new Error('Explore query failed');
 }
