@@ -10,6 +10,7 @@ import { logger } from '../../util/logger';
 import { ApplicationState } from '../../store/configureStore';
 import { DocumentParser } from '../../util/DocumentParser';
 import HotkeyListener from '../controls/HotkeyListener';
+import history from '../../router/history';
 
 const styles = (theme: Theme) => createStyles({
   form: {
@@ -46,6 +47,8 @@ class NewEntry extends React.Component<Props, State> {
     }
   }
 
+  private formRef = React.createRef<HTMLFormElement>();
+
   render() {
 
     const { classes } = this.props;
@@ -53,10 +56,10 @@ class NewEntry extends React.Component<Props, State> {
     return (
       <>
         <HotkeyListener hotkeys={{
-          "CTRL+ENTER": () => { alert("OK"); },
-          "SHIFT+ENTER": () => { alert("OK2"); },
+          "CTRL+ENTER": async () => { await this.onSubmitForm(); history.push('/history')},
+          "SHIFT+ENTER": async () => { await this.onSubmitForm(); },
         }}>
-          <form noValidate autoComplete="off" className={classes.form} onSubmit={this.onSubmit}>
+          <form ref={this.formRef} noValidate autoComplete="off" className={classes.form} onSubmit={this.onSubmit}>
                 <TextField multiline autoFocus name="content" rows="10" variant="outlined" fullWidth
                           className={classes.inputArea} onChange={this.onTextChange}>
                 </TextField>
@@ -77,14 +80,18 @@ class NewEntry extends React.Component<Props, State> {
 
   onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    await this.onSubmitForm();
+  }
+
+  onSubmitForm = async () => {
+    const form = this.formRef.current!;
+    const formData = new FormData(form);
     const content = formData.get('content') as string;
 
     try {
-      const form = e.currentTarget;
       await addDocument(content);
-      form.reset();
       this.props.showSnackbar('Document saved.', 'info');
+      form.reset();
     }
     catch (err) {
       logger.err('create document', err);
@@ -94,7 +101,6 @@ class NewEntry extends React.Component<Props, State> {
 
   onTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
-
     const values = DocumentParser.parseObjectValues(text) ?? {};
     const tags = DocumentParser.parseTags(text);
 
