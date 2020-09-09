@@ -9,6 +9,7 @@ import * as SnackbarStore from '../../store/SnackbarStore';
 import { logger } from '../../util/logger';
 import { ApplicationState } from '../../store/configureStore';
 import { DocumentParser } from '../../util/DocumentParser';
+import HotkeyListener from '../controls/HotkeyListener';
 
 const styles = (theme: Theme) => createStyles({
   form: {
@@ -51,16 +52,20 @@ class NewEntry extends React.Component<Props, State> {
 
     return (
       <>
-        <form noValidate autoComplete="off" className={classes.form}
-              onSubmit={this.onSubmit}>
-              <TextField multiline autoFocus name="content" rows="10" variant="outlined" fullWidth
-                        className={classes.inputArea} onChange={this.onTextChange}>
-              </TextField>
+        <HotkeyListener hotkeys={{
+          "CTRL+ENTER": () => { alert("OK"); },
+          "SHIFT+ENTER": () => { alert("OK2"); },
+        }}>
+          <form noValidate autoComplete="off" className={classes.form} onSubmit={this.onSubmit}>
+                <TextField multiline autoFocus name="content" rows="10" variant="outlined" fullWidth
+                          className={classes.inputArea} onChange={this.onTextChange}>
+                </TextField>
 
-              <IconButton type="submit">
-                <Save color="primary" fontSize="large" />
-              </IconButton>
-        </form>
+                <IconButton type="submit">
+                  <Save color="primary" fontSize="large" />
+                </IconButton>
+          </form>
+        </HotkeyListener>
 
         <Paper>
           <TagList tags={this.state.tags} /><br />
