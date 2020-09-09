@@ -54,7 +54,7 @@ export const explore = usingTokens(async (group: GroupByTime, filter: string): P
   const response = await axios.post('api/explore', {
     aggregate: 'sum',
     GroupByTime: group,
-    searchTokens: filter
+    filter,
   });
 
   if (response.status === 200) {

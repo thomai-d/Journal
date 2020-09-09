@@ -75,7 +75,7 @@ const History = (props: Props & DispatchProps) => {
 
   const onSearchTextChange = React.useCallback(debounce(text => {
     props.searchDocuments(text);
-    props.exploreQuery(firstSearchText, props.exploreGrouping);
+    props.exploreQuery(text, props.exploreGrouping);
   }, 300), []);
 
   const onGroupingChange = (event: React.ChangeEvent<{ value: unknown }>) => {

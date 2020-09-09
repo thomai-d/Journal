@@ -213,6 +213,15 @@ namespace Journal.Server.IntegrationTests.Mongo
                         { "2020-07", 10 },
                     }},
                 });
+            
+            (await target.AggregateValuesAsync("test", GroupTimeRange.Month, Aggregate.Average, FilterSettings.FilterValues("a")))
+                .Should().BeEquivalentTo(new[]
+                {
+                    new ValuesResult { Key = "a", Values = new Dictionary<string, double>
+                    {
+                        { "2020-07", 4 },
+                    }},
+                });
         }
         
         [Fact]
