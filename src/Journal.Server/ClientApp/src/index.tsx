@@ -7,6 +7,7 @@ import configureStore from './store/configureStore';
 import App from './App';
 import axios from 'axios';
 import { TokenService } from './api';
+import { logger } from './util/logger';
 
 import './animations.css';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -17,17 +18,20 @@ axios.defaults.baseURL = 'http://localhost:5000';
 const { store, persistor } = configureStore(history);
 persistor.subscribe(() => {
   const state = store.getState();
-  if (state.login.tokens)
-    TokenService.setTokens(state.login.tokens);
-});
 
-ReactDOM.render(
-  <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
-      <ConnectedRouter history={history}>
-        <App />
-      </ConnectedRouter>
-    </PersistGate>
-  </Provider>,
-  document.getElementById('root')
-);
+  if (state.login.tokens) {
+    logger.debug('Applying persisted tokens...');
+    TokenService.setTokens(state.login.tokens);
+  }
+
+  ReactDOM.render(
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <ConnectedRouter history={history}>
+          <App />
+        </ConnectedRouter>
+      </PersistGate>
+    </Provider>,
+    document.getElementById('root')
+  );
+});
