@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { FormControl, InputAdornment, TextField, CircularProgress, Typography, NativeSelect, InputLabel } from '@material-ui/core';
+import { FormControl, Typography, NativeSelect, InputLabel } from '@material-ui/core';
 import { Theme, makeStyles, Card, CardContent } from '@material-ui/core';
-import { Search } from '@material-ui/icons';
-import { debounce } from '../../util/debounce';
+import Search from '../controls/Search';
 import { AnyAction, Dispatch, bindActionCreators } from 'redux';
 import * as HistoryStore from '../../store/HistoryStore';
 import { ApplicationState } from '../../store/configureStore';
@@ -11,17 +10,9 @@ import DocumentList from '../controls/DocumentList';
 import MuiAlert from '@material-ui/lab/Alert';
 import { GroupByTime } from '../../api';
 import { Chart } from 'react-google-charts';
-import { useEffect } from 'react';
+import { useState } from 'react';
 
 const useStyle = makeStyles((theme: Theme) => ({
-  searchAdornment: {
-    width: '28px'
-  },
-
-  form: {
-    marginBottom: theme.spacing(1)
-  },
-  
   alert: {
     maxWidth: '50%'
   },
@@ -43,7 +34,11 @@ const useStyle = makeStyles((theme: Theme) => ({
 
   leftGap: {
     marginLeft: theme.spacing(1)
-  }
+  },
+
+  form: {
+    marginBottom: theme.spacing(1)
+  },
 }));
 
 const stateToProps = (state: ApplicationState) => {
@@ -65,40 +60,25 @@ const History = (props: Props & DispatchProps) => {
 
   const classes = useStyle();
 
-  /* eslint-disable react-hooks/exhaustive-deps */
-  const firstSearchText = props.searchText;
-  useEffect(() => {
-    props.searchDocuments(firstSearchText);
-    props.exploreQuery(firstSearchText, props.exploreGrouping);
-  }, []);
-  /* eslint-enable react-hooks/exhaustive-deps */
+  const [ firstSearchText ] = useState(props.searchText);
 
-  const onSearchTextChange = React.useCallback(debounce(text => {
+  const onSearchTextChange = (text: string) => {
     props.searchDocuments(text);
     props.exploreQuery(text, props.exploreGrouping);
-  }, 300), []);
+  };
 
   const onGroupingChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     props.exploreQuery(props.searchText, event.target.value as GroupByTime);
   }
+
+  const isSearching = props.documentSearchInProgress || props.exploreQueryInProgress;
 
   return (
     <>
       <div className={classes.root}>
         <Card className={classes.card}>
           <CardContent>
-            <FormControl className={classes.form}>
-              <TextField defaultValue={props.searchText}
-                onChange={(e: any) => onSearchTextChange(e.currentTarget.value)}
-                label="Filter" autoFocus InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start" className={classes.searchAdornment}>
-                      {props.documentSearchInProgress ? (<CircularProgress size="1em" />) : (<Search />)}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              </FormControl>
+            <Search onChange={onSearchTextChange} isSearching={isSearching} initialText={firstSearchText} />
           </CardContent>
         </Card>
 
