@@ -134,7 +134,7 @@ export const reducer: HistoryStore<HistoryState, KnownAction | LoginStore.KnownA
       case 'DOCUMENT_SEARCH_STARTED':
         return { ...state, documentSearchInProgress: true, documentSearchResults: [], searchText: action.searchText };
       case 'DOCUMENT_SEARCH_SUCCEEDED':
-        return { ...state, documentSearchInProgress: false, documentSearchResults: action.searchResults, searchText: action.searchText };
+        return { ...state, documentSearchInProgress: false, documentSearchResults: action.searchResults, searchText: action.searchText, documentSearchError: '' };
       case 'DOCUMENT_SEARCH_FAILED':
         return { ...state, documentSearchInProgress: false, documentSearchResults: [], searchText: action.searchText, documentSearchError: action.error };
 

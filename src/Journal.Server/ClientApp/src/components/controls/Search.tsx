@@ -25,7 +25,6 @@ export default (props: Props) => {
   const classes = useStyle();
   
   const onSearchTextChange = React.useCallback(debounce(text => {
-    console.log(text);
     props.onChange(text);
   }, 300), []);
 
