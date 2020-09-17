@@ -16,7 +16,15 @@ const useStyle = makeStyles((theme: Theme) => ({
 
   title: {
     marginLeft: theme.spacing(0.5)
-  }
+  },
+
+  main: {
+    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'stretch',
+    flexDirection: 'column',
+  },
+
 }));
 
 const stateToProps = (state: ApplicationState) => ({
@@ -63,7 +71,7 @@ export const Layout = (props: Props) => {
         </Grid>
       </AppBar>
 
-      <main style={{flexGrow: 1, display: 'flex', alignItems: 'stretch', flexDirection: 'column'}}>
+      <main className={classes.main}>
         <Paper className={classes.content}>{props.children}</Paper>
       </main>
 
