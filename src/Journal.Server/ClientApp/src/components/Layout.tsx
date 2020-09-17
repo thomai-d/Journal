@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { AppBar, Typography, Grid, IconButton, Drawer, List, ListItem, Paper, Theme, makeStyles } from '@material-ui/core';
+import { AppBar, Typography, Grid, IconButton, Paper, Theme, makeStyles } from '@material-ui/core';
 import { Menu } from '@material-ui/icons';
 import LoginBar from './controls/LoginBar';
-import { useHistory } from 'react-router';
 import SnackbarComponent from './controls/Snackbar';
 import { connect } from 'react-redux';
 import { CSSTransition } from 'react-transition-group';
 import { ApplicationState } from '../store/configureStore';
+import Navigation from './controls/Navigation';
 
 const useStyle = makeStyles((theme: Theme) => ({
   content: {
     padding: theme.spacing(1),
-    height: '100%'
+    flexGrow: 1,
   },
 
   title: {
@@ -31,25 +31,10 @@ export const Layout = (props: Props) => {
 
   const classes = useStyle();
 
-  const [isOpen, setIsOpen] = React.useState(false);
-  const history = useHistory();
-
-  const onMenuToggle = () => {
-      setIsOpen(!isOpen);
-  }
-
-  const onMenuClose = () => {
-      setIsOpen(false);
-  }
-
-  const goto = (url: string) => {
-      history.push(url);
-      setIsOpen(false);
-  }
-
   return (
     <React.Fragment>
-      <AppBar position="static">
+      <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%'}}>
+      <AppBar position="static" style={{flexGrow: 0}}>
         <Grid container alignItems="center">
           <Grid item xs>
             <Grid container justify="flex-start" alignItems="center">
@@ -59,7 +44,7 @@ export const Layout = (props: Props) => {
                 classNames="slide-in-icon-left"
                 unmountOnExit>
                 <Grid item>
-                  <IconButton color="inherit" onClick={onMenuToggle} className="grow">
+                  <IconButton color="inherit" className="grow">
                     <Menu />
                   </IconButton>
                 </Grid>
@@ -78,36 +63,16 @@ export const Layout = (props: Props) => {
         </Grid>
       </AppBar>
 
-      {props.isLoggedIn && (
-        <Drawer open={isOpen} onClose={onMenuClose}>
-          <nav>
-            <List>
-              <ListItem
-                button
-                onClick={() => {
-                  goto('/new');
-                }}
-              >
-                New
-              </ListItem>
-              <ListItem
-                button
-                onClick={() => {
-                  goto('/history');
-                }}
-              >
-                History
-              </ListItem>
-            </List>
-          </nav>
-        </Drawer>
-      )}
-
-      <main>
+      <main style={{flexGrow: 1, display: 'flex', alignItems: 'stretch', flexDirection: 'column'}}>
         <Paper className={classes.content}>{props.children}</Paper>
       </main>
 
+      {props.isLoggedIn && (
+        <Navigation />
+      )}
+
       <SnackbarComponent />
+      </div>
     </React.Fragment>
   );
 };
