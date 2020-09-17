@@ -13,7 +13,9 @@ import './animations.css';
 import { PersistGate } from 'redux-persist/integration/react';
 
 // todo: env.environment?
-axios.defaults.baseURL = 'http://localhost:5000';
+const baseUrl = window.location.protocol + '//' + window.location.hostname + ':5000';
+logger.info(`BaseURL is ${baseUrl}`);
+axios.defaults.baseURL = baseUrl;
 
 const { store, persistor } = configureStore(history);
 persistor.subscribe(() => {
