@@ -9,12 +9,13 @@ import Search from '../controls/Search';
 import { useState } from 'react';
 
 const useStyle = makeStyles((theme: Theme) => ({
-  growingCard: {
-    marginTop: theme.spacing(1),
-    flex: '1 0'
-  },
   card: {
     marginTop: theme.spacing(1),
+  },
+  growingCard: {
+    overflow: 'auto',
+    marginTop: theme.spacing(1),
+    flex: '1 0 0',
   },
 }));
 
@@ -48,11 +49,7 @@ const Documents = (props: Props & DispatchProps) => {
         <Search onChange={onSearchTextChange} isSearching={searchInProgress} initialText={firstSearchText} />
       </CardContent>
     </Card>
-    <Card className={classes.growingCard}>
-      <CardContent>
-        <DocumentList documents={props.documentSearchResults} error={props.searchError}></DocumentList>
-      </CardContent>
-    </Card>
+    <DocumentList documents={props.documentSearchResults} error={props.searchError}></DocumentList>
   </>);
 }
 

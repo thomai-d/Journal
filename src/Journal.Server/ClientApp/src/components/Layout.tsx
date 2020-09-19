@@ -9,11 +9,6 @@ import { ApplicationState } from '../store/configureStore';
 import Navigation from './controls/Navigation';
 
 const useStyle = makeStyles((theme: Theme) => ({
-  content: {
-    padding: theme.spacing(1),
-    flexGrow: 1,
-  },
-
   title: {
     marginLeft: theme.spacing(0.5)
   },
@@ -23,6 +18,7 @@ const useStyle = makeStyles((theme: Theme) => ({
     display: 'flex',
     alignItems: 'stretch',
     flexDirection: 'column',
+    padding: theme.spacing(1),
   },
 
 }));
@@ -72,7 +68,7 @@ export const Layout = (props: Props) => {
       </AppBar>
 
       <main className={classes.main}>
-        <Paper className={classes.content}>{props.children}</Paper>
+        {props.children}
       </main>
 
       {props.isLoggedIn && (

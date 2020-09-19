@@ -7,8 +7,9 @@ import MuiAlert from '@material-ui/lab/Alert';
 
 const useStyle = makeStyles((theme: Theme) => ({
   tableContainer: {
-    marginTop: theme.spacing(2),
     overflow: 'auto',
+    marginTop: theme.spacing(1),
+    flex: '1 0 0',
   },
 
   alert: {
