@@ -2,6 +2,7 @@ import * as React from 'react';
 import Home from './components/Pages/Home';
 import NewEntry from './components/Pages/NewEntry';
 import History from './components/Pages/History';
+import Documents from './components/Pages/Documents';
 import { matchPath, RouteProps } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import DynamicFeedIcon from '@material-ui/icons/DynamicFeed';
@@ -18,9 +19,10 @@ export interface Route extends RouteProps {
 
 export const pageTree: Route[] = [
 
-  { menu: true,  shortName: 'History',       path: '/',         exact: true, protected: false, hotkey: undefined,        component: Home,     icon: <DynamicFeedIcon /> },
-  { menu: false, shortName: 'New',       path: '/new',      exact: true, protected: true,  hotkey: 'CTRL+SHIFT+N',   component: NewEntry, },
-  { menu: true,  shortName: 'Explore',   path: '/history',  exact: true, protected: true,  hotkey: 'CTRL+SHIFT+K',   component: History,  icon: <TimelineIcon /> },
+  { menu: false, shortName: 'Home',      path: '/',           exact: true, protected: false, hotkey: undefined,        component: Home },
+  { menu: true,  shortName: 'Documents', path: '/documents',  exact: true, protected: true,  hotkey: undefined,        component: Documents, icon: <DynamicFeedIcon /> },
+  { menu: false, shortName: 'New',       path: '/new',        exact: true, protected: true,  hotkey: 'CTRL+SHIFT+N',   component: NewEntry, },
+  { menu: true,  shortName: 'Explore',   path: '/history',    exact: true, protected: true,  hotkey: 'CTRL+SHIFT+K',   component: History,   icon: <TimelineIcon /> },
 
 ];
 

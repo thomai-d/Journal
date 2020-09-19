@@ -25,10 +25,10 @@ export interface Logout {
   type: 'LOGOUT',
 }
 
-export type KnownAction = LoginSuccess | LoginFailed | Logout | RehydrateAction;
+export type LoginActions = LoginSuccess | LoginFailed | Logout | RehydrateAction;
 
 export const actions = {
-  login: (username: string, password: string): AppThunkAction<KnownAction, Promise<boolean>> => async (dispatch) => {
+  login: (username: string, password: string): AppThunkAction<LoginActions, Promise<boolean>> => async (dispatch) => {
     try {
       const tokens = await login(username, password);
       TokenService.setTokens(tokens);
@@ -47,13 +47,13 @@ export const actions = {
     }
   },
 
-  logout: (): AppThunkAction<KnownAction> => async (dispatch) => {
+  logout: (): AppThunkAction<LoginActions> => async (dispatch) => {
     TokenService.clearTokens();
     dispatch({ type: 'LOGOUT' });
   }
 }
 
-export const reducer: Reducer<LoginState> = (state: LoginState | undefined, action: KnownAction) : LoginState => {
+export const reducer: Reducer<LoginState> = (state: LoginState | undefined, action: LoginActions) : LoginState => {
   if (!state) {
     return {
       isLoggedIn: false

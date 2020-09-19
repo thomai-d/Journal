@@ -44,7 +44,7 @@ export type KnownAction = SnackbarOpened | SnackbarClosed;
 
 export const reducer: Reducer<SnackbarState> = 
                 (state: SnackbarState | undefined,
-                 action: KnownAction | LoginStore.KnownAction) => {
+                 action: KnownAction | LoginStore.LoginActions) => {
 
   if (!state) {
     return defaultState;

@@ -64,7 +64,7 @@ export const explore = usingTokens(async (group: GroupByTime, filter: string): P
   throw new Error('Explore query failed');
 });
 
-export const queryDocuments = (async (filter: string): Promise<Document[]> => {
+export const queryDocuments = usingTokens((async (filter: string): Promise<Document[]> => {
   const response = await axios.post<Document[]>('api/document/query', { filter });
 
   if (response.status === 200) {
@@ -72,7 +72,7 @@ export const queryDocuments = (async (filter: string): Promise<Document[]> => {
   }
  
   throw new Error('Query documents failed');
-});
+}));
 
 export const addDocument = usingTokens(async (content: string): Promise<void> => {
   const response = await axios.post<Document[]>('api/document', { content });

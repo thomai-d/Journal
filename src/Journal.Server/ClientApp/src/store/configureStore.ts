@@ -2,7 +2,6 @@ import { applyMiddleware, combineReducers, compose, createStore, StoreEnhancer }
 import thunk from 'redux-thunk';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { History } from 'history';
-import { reducers } from './';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore, PersistConfig } from 'redux-persist';
 import autoMergeLevel1 from 'redux-persist/es/stateReconciler/autoMergeLevel1';
@@ -10,9 +9,11 @@ import { actionLogger } from './middleware/actionLogger';
 import * as LoginStore from './LoginStore';
 import * as HistoryStore from './HistoryStore';
 import * as SnackbarStore from './SnackbarStore';
+import * as DocumentStore from './DocumentStore';
 
 export interface ApplicationState {
     login: LoginStore.LoginState;
+    documents: DocumentStore.DocumentState;
     history: HistoryStore.HistoryState;
     snackbar: SnackbarStore.SnackbarState;
 }
@@ -25,7 +26,10 @@ export default function configureStore(history: History, initialState?: Applicat
     ];
 
     const rootReducer = combineReducers({
-        ...reducers,
+        login: LoginStore.reducer,
+        history: HistoryStore.reducer,
+        snackbar: SnackbarStore.reducer,
+        documents: DocumentStore.reducer,
         router: connectRouter(history)
     });
 

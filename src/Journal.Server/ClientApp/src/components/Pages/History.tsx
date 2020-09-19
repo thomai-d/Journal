@@ -6,16 +6,11 @@ import Search from '../controls/Search';
 import { AnyAction, Dispatch, bindActionCreators } from 'redux';
 import * as HistoryStore from '../../store/HistoryStore';
 import { ApplicationState } from '../../store/configureStore';
-import DocumentList from '../controls/DocumentList';
-import MuiAlert from '@material-ui/lab/Alert';
 import { GroupByTime } from '../../api';
 import { Chart } from 'react-google-charts';
 import { useState } from 'react';
 
 const useStyle = makeStyles((theme: Theme) => ({
-  alert: {
-    maxWidth: '50%'
-  },
   
   card: {
     marginTop: theme.spacing(1),
@@ -49,7 +44,6 @@ const stateToProps = (state: ApplicationState) => {
 
 const dispatchToProps = (dispatch: Dispatch<AnyAction>) =>
   bindActionCreators({
-    searchDocuments: HistoryStore.actions.searchDocuments,
     exploreQuery: HistoryStore.actions.exploreQuery
   }, dispatch);
 
@@ -63,7 +57,6 @@ const History = (props: Props & DispatchProps) => {
   const [ firstSearchText ] = useState(props.searchText);
 
   const onSearchTextChange = (text: string) => {
-    props.searchDocuments(text);
     props.exploreQuery(text, props.exploreGrouping);
   };
 
@@ -71,7 +64,7 @@ const History = (props: Props & DispatchProps) => {
     props.exploreQuery(props.searchText, event.target.value as GroupByTime);
   }
 
-  const isSearching = props.documentSearchInProgress || props.exploreQueryInProgress;
+  const isSearching = props.exploreQueryInProgress;
 
   return (
     <>
@@ -79,18 +72,6 @@ const History = (props: Props & DispatchProps) => {
         <Card className={classes.card}>
           <CardContent>
             <Search onChange={onSearchTextChange} isSearching={isSearching} initialText={firstSearchText} />
-          </CardContent>
-        </Card>
-
-        <Card className={classes.growingCard}>
-          <CardContent>
-            {props.documentSearchError ? (
-              <MuiAlert className={classes.alert} severity="warning" variant="filled" >
-                <span>{props.documentSearchError}</span>
-              </MuiAlert>
-            ) : (
-              <DocumentList documents={props.documentSearchResults} ></DocumentList>
-            )}
           </CardContent>
         </Card>
 
