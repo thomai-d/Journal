@@ -3,6 +3,7 @@ import { Theme, makeStyles, FormControl, TextField, InputAdornment, CircularProg
 import { Search } from '@material-ui/icons';
 import { debounce } from '../../util/debounce';
 import { useEffect } from 'react';
+import { useMediaQuery } from 'react-responsive';
 
 const useStyle = makeStyles((theme: Theme) => ({
   searchAdornment: {
@@ -18,11 +19,13 @@ type Props = {
   onChange: (text: string) => void;
   initialText: string;
   isSearching: boolean;
+  className?: string;
 };
 
 export default (props: Props) => {
 
   const classes = useStyle();
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
   
   const onSearchTextChange = React.useCallback(debounce(text => {
     props.onChange(text);
@@ -33,10 +36,10 @@ export default (props: Props) => {
   }, [ props.initialText, onSearchTextChange ]);
 
   return (
-    <FormControl className={classes.form}>
+    <FormControl className={`${classes.form} ${props.className}`}>
       <TextField defaultValue={props.initialText}
         onChange={(e: any) => onSearchTextChange(e.currentTarget.value)}
-        label="Filter" autoFocus InputProps={{
+        label="Filter" autoFocus={!isTabletOrMobile} InputProps={{
           startAdornment: (
             <InputAdornment position="start" className={classes.searchAdornment}>
               {props.isSearching ? (<CircularProgress size="1em" />) : (<Search />)}

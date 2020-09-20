@@ -31,7 +31,7 @@ export default (props: Props) => {
           <span>{props.error}</span>
         </MuiAlert>
       ) : (
-        <TableContainer component={Paper} className={classes.tableContainer}>
+        <TableContainer className={classes.tableContainer}>
           <Table>
             <TableBody>
               {props.documents.map((item) => (
