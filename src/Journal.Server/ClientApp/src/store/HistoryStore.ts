@@ -9,7 +9,7 @@ export interface HistoryState {
   searchText: string;
 
   exploreQueryInProgress: boolean;
-  exploreQueryResult: any;
+  exploreQueryResult: any[];
   exploreQuerySearchError: string;
   exploreGrouping: GroupByTime;
 }
@@ -18,7 +18,7 @@ const defaultState = {
   searchText: '',
   
   exploreQueryInProgress: false,
-  exploreQueryResult: '',
+  exploreQueryResult: [],
   exploreQuerySearchError: '',
   exploreGrouping: 'day'
 
@@ -34,7 +34,7 @@ export interface VisualSearchStarted {
 export interface VisualSearchSucceeded {
   type: 'EXPLORE_SEARCH_SUCCEEDED';
   searchText: string;
-  searchResults: any;
+  searchResults: any[];
 }
 
 export interface VisualSearchFailed {
@@ -83,11 +83,11 @@ export const reducer: HistoryStore<HistoryState, KnownAction | LoginStore.LoginA
     switch (action.type) {
 
       case 'EXPLORE_SEARCH_STARTED':
-        return { ...state, exploreQueryInProgress: true, exploreQueryResult: null, searchText: action.searchText, exploreGrouping: action.grouping };
+        return { ...state, exploreQueryInProgress: true, exploreQueryResult: [], searchText: action.searchText, exploreGrouping: action.grouping };
       case 'EXPLORE_SEARCH_SUCCEEDED':
         return { ...state, exploreQueryInProgress: false, exploreQueryResult: action.searchResults, searchText: action.searchText };
       case 'EXPLORE_SEARCH_FAILED':
-        return { ...state, exploreQueryInProgress: false, exploreQueryResult: null, searchText: action.searchText, exploreQuerySearchError: action.error };
+        return { ...state, exploreQueryInProgress: false, exploreQueryResult: [], searchText: action.searchText, exploreQuerySearchError: action.error };
 
       case 'LOGOUT':
         return defaultState;

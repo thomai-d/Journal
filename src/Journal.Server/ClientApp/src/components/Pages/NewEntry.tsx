@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { TextField, IconButton, createStyles, Paper, WithStyles, Theme, withStyles } from '@material-ui/core';
+import { TextField, createStyles, WithStyles, Theme, withStyles, Fab, Zoom } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
 import TagList from '../controls/TagList';
 import { addDocument } from '../../api';
@@ -15,13 +15,13 @@ import history from '../../router/history';
 const styles = (theme: Theme) => createStyles({
   form: {
     margin: theme.spacing(0.5),
-    display: 'flex',
-    alignItems: 'flex-start'
+    flex: '1 0 0',
+    overflow: 'auto',
   },
 
-  inputArea: {
-    flex: 1
-  }
+  fab: {
+    left: 'calc(50% - 28px)',
+  },
 });
 
 const dispatchToProps = (dispatch: Dispatch<AnyAction>) =>
@@ -35,6 +35,7 @@ type Props = WithStyles<typeof styles> & ReturnType<typeof dispatchToProps> & {
 interface State {
   tags: string[];
   values: string[];
+  isSubmitting: boolean;
 };
 
 class NewEntry extends React.Component<Props, State> {
@@ -43,7 +44,8 @@ class NewEntry extends React.Component<Props, State> {
     super(props);
     this.state = {
       tags: [],
-      values: []
+      values: [],
+      isSubmitting: false,
     }
   }
 
@@ -60,20 +62,20 @@ class NewEntry extends React.Component<Props, State> {
           "SHIFT+ENTER": async () => { await this.onSubmitForm(); },
         }}>
           <form ref={this.formRef} noValidate autoComplete="off" className={classes.form} onSubmit={this.onSubmit}>
-                <TextField multiline autoFocus name="content" rows="10" variant="outlined" fullWidth
-                          className={classes.inputArea} onChange={this.onTextChange}>
-                </TextField>
+            <TextField multiline autoFocus name="content" variant="outlined" fullWidth
+                       onChange={this.onTextChange}>
+            </TextField>
 
-                <IconButton type="submit">
-                  <Save color="primary" fontSize="large" />
-                </IconButton>
+            <TagList tags={this.state.tags} /><br />
+            <TagList tags={this.state.values} />
           </form>
         </HotkeyListener>
 
-        <Paper>
-          <TagList tags={this.state.tags} /><br />
-          <TagList tags={this.state.values} />
-        </Paper>
+        <Zoom in>
+          <Fab className={classes.fab} color="primary" onClick={this.onSubmitForm} disabled={this.state.isSubmitting}>
+            <Save />
+          </Fab>
+        </Zoom>
       </>
     );
   }
@@ -89,6 +91,7 @@ class NewEntry extends React.Component<Props, State> {
     const content = formData.get('content') as string;
 
     try {
+      this.setState({tags: [], values: [], isSubmitting: true});
       await addDocument(content);
       this.props.showSnackbar('Document saved.', 'info');
       form.reset();
@@ -96,6 +99,7 @@ class NewEntry extends React.Component<Props, State> {
     catch (err) {
       logger.err('create document', err);
       this.props.showSnackbar('Error while saving document', 'error');
+      this.setState({tags: [], values: [], isSubmitting: false});
     }
   }
 

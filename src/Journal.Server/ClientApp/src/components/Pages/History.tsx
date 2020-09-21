@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { FormControl, Typography, NativeSelect, InputLabel } from '@material-ui/core';
-import { Theme, makeStyles, Card, CardContent } from '@material-ui/core';
+import { Theme, makeStyles } from '@material-ui/core';
 import Search from '../controls/Search';
 import { AnyAction, Dispatch, bindActionCreators } from 'redux';
 import * as HistoryStore from '../../store/HistoryStore';
@@ -12,27 +12,20 @@ import { useState } from 'react';
 
 const useStyle = makeStyles((theme: Theme) => ({
   
-  card: {
-    marginTop: theme.spacing(1),
+  search: {
+    position: 'static',
+    top: theme.spacing(1),
+    left: theme.spacing(1),
   },
 
-  growingCard: {
-    marginTop: theme.spacing(1),
-    flex: '1 0'
+  chart: {
+    flex: '1 0 0',
   },
-
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%'
-  },
-
-  leftGap: {
-    marginLeft: theme.spacing(1)
-  },
-
-  form: {
-    marginBottom: theme.spacing(1)
+  
+  noData: {
+    alignSelf: 'center',
+    justifySelf: 'center',
+    margin: 'auto',
   },
 }));
 
@@ -65,41 +58,33 @@ const History = (props: Props & DispatchProps) => {
   }
 
   const isSearching = props.exploreQueryInProgress;
+  const hasData = props.exploreQueryResult && props.exploreQueryResult.length > 1;
 
   return (
     <>
-      <div className={classes.root}>
-        <Card className={classes.card}>
-          <CardContent>
-            <Search onChange={onSearchTextChange} isSearching={isSearching} initialText={firstSearchText} />
-          </CardContent>
-        </Card>
+      <Search onChange={onSearchTextChange} isSearching={isSearching} initialText={firstSearchText} />
 
-        <Card className={classes.growingCard}>
-          <CardContent>
-            {props.exploreQueryResult ? (
-              <Chart width={800} height={300} chartType="LineChart" loader={<div>Loading...</div>}
-                     data={props.exploreQueryResult}>
-              </Chart>
-            ) : (
-              <Typography>No data</Typography>
-            )}
-
-            <br />
-            <FormControl className={`${classes.form} ${classes.leftGap}`}>
-              <InputLabel htmlFor="grouping-select">Grouping</InputLabel>
-              <NativeSelect value={props.exploreGrouping} onChange={onGroupingChange}
-                            inputProps={{
-                              id: 'grouping-select'
-                            }}>
-                <option value="day">Day</option>
-                <option value="week">Week</option>
-                <option value="year">Year</option>
-              </NativeSelect>
-            </FormControl>
-          </CardContent>
-        </Card>
-      </div>
+      {hasData ? (
+        <>
+          <Chart width={800} height={300} chartType="LineChart" loader={<div>Loading...</div>}
+                data={props.exploreQueryResult} className={classes.chart}>
+          </Chart>
+          <br />
+          <FormControl>
+            <InputLabel htmlFor="grouping-select">Grouping</InputLabel>
+            <NativeSelect value={props.exploreGrouping} onChange={onGroupingChange}
+                          inputProps={{
+                            id: 'grouping-select'
+                          }}>
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="year">Year</option>
+            </NativeSelect>
+          </FormControl>
+        </>
+      ) : (
+        <Typography className={classes.noData} color="textSecondary">No data</Typography>
+      )}
     </>
   );
 }

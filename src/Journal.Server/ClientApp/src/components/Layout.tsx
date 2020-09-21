@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { AppBar, Typography, Grid, IconButton, Paper, Theme, makeStyles } from '@material-ui/core';
+import { AppBar, Typography, Grid, IconButton, Theme, makeStyles } from '@material-ui/core';
 import { Menu } from '@material-ui/icons';
 import LoginBar from './controls/LoginBar';
 import SnackbarComponent from './controls/Snackbar';

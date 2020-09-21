@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Theme, makeStyles, TableContainer, Table, TableBody, TableCell, TableRow, Paper } from '@material-ui/core';
+import { Theme, makeStyles, TableContainer, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
 import { printDate } from '../../util/printDate';
 import TagList from '../controls/TagList';
 import { Document } from '../../api';
