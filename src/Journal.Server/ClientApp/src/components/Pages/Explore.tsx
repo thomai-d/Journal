@@ -4,7 +4,7 @@ import { FormControl, Typography, NativeSelect, InputLabel } from '@material-ui/
 import { Theme, makeStyles } from '@material-ui/core';
 import Search from '../controls/Search';
 import { AnyAction, Dispatch, bindActionCreators } from 'redux';
-import * as HistoryStore from '../../store/HistoryStore';
+import * as ExploreStore from '../../store/ExploreStore';
 import { ApplicationState } from '../../store/configureStore';
 import { GroupByTime } from '../../api';
 import { Chart } from 'react-google-charts';
@@ -37,13 +37,13 @@ const stateToProps = (state: ApplicationState) => {
 
 const dispatchToProps = (dispatch: Dispatch<AnyAction>) =>
   bindActionCreators({
-    exploreQuery: HistoryStore.actions.exploreQuery
+    exploreQuery: ExploreStore.actions.exploreQuery
   }, dispatch);
 
 type Props = ReturnType<typeof stateToProps>;
 type DispatchProps = ReturnType<typeof dispatchToProps>;
 
-const History = (props: Props & DispatchProps) => {
+const Explore = (props: Props & DispatchProps) => {
 
   const classes = useStyle();
 
@@ -89,4 +89,4 @@ const History = (props: Props & DispatchProps) => {
   );
 }
 
-export default connect(stateToProps, dispatchToProps)(History);
+export default connect(stateToProps, dispatchToProps)(Explore);

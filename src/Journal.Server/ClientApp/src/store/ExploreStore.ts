@@ -1,11 +1,11 @@
-import { Reducer as HistoryStore } from 'redux';
+import { Reducer as ExploreStore } from 'redux';
 import { AppThunkAction } from '.';
 import { explore, GroupByTime } from '../api';
 import * as LoginStore from './LoginStore';
 import { logger } from '../util/logger';
 import { resultToChartData } from '../util/google-chart-helper';
 
-export interface HistoryState {
+export interface ExploreState {
   searchText: string;
 
   exploreQueryInProgress: boolean;
@@ -22,28 +22,28 @@ const defaultState = {
   exploreQuerySearchError: '',
   exploreGrouping: 'day'
 
-} as HistoryState;
+} as ExploreState;
 
 
-export interface VisualSearchStarted {
+export interface ExploreQueryStarted {
   type: 'EXPLORE_SEARCH_STARTED';
   searchText: string;
   grouping: GroupByTime;
 }
 
-export interface VisualSearchSucceeded {
+export interface ExploreQuerySucceeded {
   type: 'EXPLORE_SEARCH_SUCCEEDED';
   searchText: string;
   searchResults: any[];
 }
 
-export interface VisualSearchFailed {
+export interface ExploreQueryFailed {
   type: 'EXPLORE_SEARCH_FAILED';
   searchText: string;
   error: string;
 }
 
-export type KnownAction = VisualSearchStarted | VisualSearchSucceeded | VisualSearchFailed;
+export type KnownAction = ExploreQueryStarted | ExploreQuerySucceeded | ExploreQueryFailed;
 
 export const actions = {
 
@@ -75,7 +75,7 @@ export const actions = {
   }
 }
 
-export const reducer: HistoryStore<HistoryState, KnownAction | LoginStore.LoginActions> = (state, action) => {
+export const reducer: ExploreStore<ExploreState, KnownAction | LoginStore.LoginActions> = (state, action) => {
     if (!state) {
       return defaultState;
     }

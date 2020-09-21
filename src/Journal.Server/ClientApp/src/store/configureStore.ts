@@ -7,14 +7,14 @@ import { persistReducer, persistStore, PersistConfig } from 'redux-persist';
 import autoMergeLevel1 from 'redux-persist/es/stateReconciler/autoMergeLevel1';
 import { actionLogger } from './middleware/actionLogger';
 import * as LoginStore from './LoginStore';
-import * as HistoryStore from './HistoryStore';
+import * as ExploreStore from './ExploreStore';
 import * as SnackbarStore from './SnackbarStore';
 import * as DocumentStore from './DocumentStore';
 
 export interface ApplicationState {
     login: LoginStore.LoginState;
     documents: DocumentStore.DocumentState;
-    history: HistoryStore.HistoryState;
+    history: ExploreStore.ExploreState;
     snackbar: SnackbarStore.SnackbarState;
 }
 
@@ -27,7 +27,7 @@ export default function configureStore(history: History, initialState?: Applicat
 
     const rootReducer = combineReducers({
         login: LoginStore.reducer,
-        history: HistoryStore.reducer,
+        history: ExploreStore.reducer,
         snackbar: SnackbarStore.reducer,
         documents: DocumentStore.reducer,
         router: connectRouter(history)
