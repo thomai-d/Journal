@@ -18,8 +18,7 @@ export function resultToChartData(result: ValuesResult[]) {
   function parseApiDateStr(str: string): any {
     if (str.match(/^\d{4}-\d{2}-\d{2}$/)) {
       // 2000-01-01
-      const parts = str.split('-');
-      return new Date(+parts[0], +parts[1], +parts[2]);
+      return str;
     }
     else if (str.match(/^\d{2}\/\d{4}$/)) {
       // 14/2000

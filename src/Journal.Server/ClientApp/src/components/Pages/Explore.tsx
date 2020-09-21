@@ -9,6 +9,7 @@ import { ApplicationState } from '../../store/configureStore';
 import { GroupByTime } from '../../api';
 import { Chart } from 'react-google-charts';
 import { useState } from 'react';
+import OnResize from '../controls/OnResize';
 
 const useStyle = makeStyles((theme: Theme) => ({
   
@@ -16,10 +17,6 @@ const useStyle = makeStyles((theme: Theme) => ({
     position: 'static',
     top: theme.spacing(1),
     left: theme.spacing(1),
-  },
-
-  chart: {
-    flex: '1 0 0',
   },
   
   noData: {
@@ -66,9 +63,11 @@ const Explore = (props: Props & DispatchProps) => {
 
       {hasData ? (
         <>
-          <Chart width={800} height={300} chartType="LineChart" loader={<div>Loading...</div>}
-                data={props.exploreQueryResult} className={classes.chart}>
-          </Chart>
+          <OnResize render={(width, height) =>
+            <Chart options={{ width, height}} chartType="LineChart"
+                    loader={<div>Loading...</div>}
+                    data={props.exploreQueryResult} />
+          } />
           <br />
           <FormControl>
             <InputLabel htmlFor="grouping-select">Grouping</InputLabel>
