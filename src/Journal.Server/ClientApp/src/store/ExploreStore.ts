@@ -83,9 +83,20 @@ export const reducer: ExploreStore<ExploreState, KnownAction | LoginStore.LoginA
     switch (action.type) {
 
       case 'EXPLORE_SEARCH_STARTED':
-        return { ...state, exploreQueryInProgress: true, exploreQueryResult: [], searchText: action.searchText, exploreGrouping: action.grouping };
+        return { ...state, exploreQueryInProgress: true, searchText: action.searchText, exploreGrouping: action.grouping };
+
       case 'EXPLORE_SEARCH_SUCCEEDED':
-        return { ...state, exploreQueryInProgress: false, exploreQueryResult: action.searchResults, searchText: action.searchText };
+        const newState = { ...state, exploreQueryInProgress: false, searchText: action.searchText };
+
+        if (action.searchResults.length === state.exploreQueryResult.length
+         && JSON.stringify(action.searchResults) === JSON.stringify(state.exploreQueryResult))
+          return newState;
+
+        
+        logger.debug('No new results. Keeping old chart.');
+        newState.exploreQueryResult = action.searchResults;
+        return newState;
+
       case 'EXPLORE_SEARCH_FAILED':
         return { ...state, exploreQueryInProgress: false, exploreQueryResult: [], searchText: action.searchText, exploreQuerySearchError: action.error };
 
