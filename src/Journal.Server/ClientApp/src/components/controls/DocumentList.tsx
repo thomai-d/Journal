@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Theme, makeStyles, TableContainer, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
-import { printDate } from '../../util/printDate';
-import TagList from '../controls/TagList';
+import { Theme, makeStyles, List, ListItem, ListItemText } from '@material-ui/core';
+import { formatDate } from '../../util/formatDate';
 import { Document } from '../../api';
 import MuiAlert from '@material-ui/lab/Alert';
 
@@ -31,20 +30,14 @@ export default (props: Props) => {
           <span>{props.error}</span>
         </MuiAlert>
       ) : (
-        <TableContainer className={classes.tableContainer}>
-          <Table>
-            <TableBody>
-              {props.documents.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.content}</TableCell>
-                  <TableCell padding="none"><TagList tags={item.tags} /></TableCell>
-                  <TableCell padding="none"><TagList tags={Object.keys(item.values)} /></TableCell>
-                  <TableCell>{printDate(item.created)}</TableCell>
-                </TableRow>
-              ))}
-              </TableBody>
-            </Table>
-        </TableContainer>
+        <List className={classes.tableContainer}>
+          {props.documents.map((item) => (
+            <ListItem key={item.id}>
+              <ListItemText primary={formatDate(item.created)}
+                            secondary={item.content.substr(0, 30)} />
+            </ListItem>
+          ))}
+        </List>
       )}
   </>);
 }

@@ -7,14 +7,17 @@ const useStyle = makeStyles(theme => ({
     flexWrap: 'wrap',
     listStyle: 'none',
     justifyContent: 'flex-start',
-    padding: theme.spacing(0.5),
-    margin: '0px',
+    padding: 0,
+    margin: 0,
   },
   
   chip: {
-    marginLeft: theme.spacing(0.5),
-    marginRight: theme.spacing(0.5),
-  }
+    margin: 0,
+
+    '& + $chip': {
+      marginLeft: theme.spacing(0.5),
+    },
+  },
 }));
 
 type Props = {
@@ -29,11 +32,8 @@ export default ({ tags }: Props) => {
     <>
       <ul className={classes.chiplist}>
         {tags.map((tag) => (
-          <li key={tag}>
-            <Chip
-              label={tag} size="small"
-              className={classes.chip}
-            />
+          <li key={tag} className={classes.chip}>
+            <Chip label={tag} size="small" />
           </li>
         ))}
       </ul>
