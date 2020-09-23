@@ -38,7 +38,7 @@ export interface DocumentSearchFailed {
 export type DocumentActions = DocumentSearchStarted | DocumentSearchSucceeded | DocumentSearchFailed;
 
 export const actions = {
-  searchDocuments: (searchText: string): AppThunkAction<DocumentActions> => async (dispatch) => {
+  searchDocuments: (searchText: string): AppThunkAction<DocumentActions, Promise<void>> => async (dispatch) => {
     dispatch({
       type: 'DOCUMENT_SEARCH_STARTED',
       searchText

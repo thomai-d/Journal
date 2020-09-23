@@ -9,8 +9,8 @@ test('Daily values should be converted correctly', () => {
 
   const expected = [
     ['Date', 'a', 'b' ],
-    [ new Date(2000, 1, 1), 1, null ],
-    [ new Date(2000, 1, 2), 2, 3 ]
+    [ '2000-01-01', 1, null ],
+    [ '2000-01-02', 2, 3 ]
   ];
 
   expect(resultToChartData(input))

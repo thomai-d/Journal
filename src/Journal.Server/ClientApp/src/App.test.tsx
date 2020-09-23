@@ -4,18 +4,14 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App';
 import { ApplicationState } from './store/configureStore';
+import thunk from 'redux-thunk';
+import configureMockStore from 'redux-mock-store';
+
+const middlewares = [thunk]
+const mockStore = configureMockStore<ApplicationState, any>(middlewares)
 
 it('renders without crashing', () => {
-    const storeFake = (state: any) => ({
-        default: () => {},
-        subscribe: () => {},
-        dispatch: () => {},
-        getState: () => ({ ...state })
-    });
-    const store = storeFake({
-        login: { isLoggedIn: false },
-        snackbar: { isOpen: false }
-    } as ApplicationState) as any;
+    const store = mockStore();
 
     ReactDOM.render(
         <Provider store={store}>
