@@ -74,6 +74,15 @@ export const queryDocuments = usingTokens((async (filter: string): Promise<Docum
   throw new Error('Query documents failed');
 }));
 
+export const getDocument = usingTokens(async (id: string): Promise<Document> => {
+  const response = await axios.get<Document>(`api/document/${id}`);
+  if (response.status === 200) {
+    return response.data;
+  }
+
+  throw new Error(response.statusText);
+});
+
 export const addDocument = usingTokens(async (content: string): Promise<void> => {
   const response = await axios.post<Document[]>('api/document', { content });
   if (response.status === 201) {

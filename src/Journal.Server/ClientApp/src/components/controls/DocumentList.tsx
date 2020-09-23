@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Theme, makeStyles, List, ListItem, ListItemText } from '@material-ui/core';
-import { formatDate } from '../../util/formatDate';
+import { formatDate } from '../../util/formatters';
 import { Document } from '../../api';
-import MuiAlert from '@material-ui/lab/Alert';
+import { Link } from 'react-router-dom';
+import Warning from './Warning';
 
 const useStyle = makeStyles((theme: Theme) => ({
   tableContainer: {
@@ -10,10 +11,6 @@ const useStyle = makeStyles((theme: Theme) => ({
     marginTop: theme.spacing(1),
     flex: '1 0 0',
   },
-
-  alert: {
-    maxWidth: '50%',
-  }
 }));
 
 type Props = {
@@ -26,13 +23,11 @@ export default (props: Props) => {
   const classes = useStyle();
   return (<>
       {props.error ? (
-        <MuiAlert className={classes.alert} severity="warning" variant="filled" >
-          <span>{props.error}</span>
-        </MuiAlert>
+        <Warning message={props.error} />
       ) : (
         <List className={classes.tableContainer}>
           {props.documents.map((item) => (
-            <ListItem key={item.id}>
+            <ListItem key={item.id} button component={Link} to={`documents/${item.id}`}>
               <ListItemText primary={formatDate(item.created)}
                             secondary={item.content.substr(0, 30)} />
             </ListItem>
