@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Theme, makeStyles, Typography, Paper, CircularProgress } from '@material-ui/core';
+import { Theme, makeStyles, Typography, Paper, CircularProgress, Box } from '@material-ui/core';
 import { useParams } from 'react-router';
 import { getDocument } from '../../api';
 import { useEffect, useState } from 'react';
@@ -11,9 +11,12 @@ import { formatDate, formatText } from '../../util/formatters';
 
 const useStyle = makeStyles((theme: Theme) => ({
   container: {
-    padding: theme.spacing(2),
     overflow: 'auto',
-    flex: '0 0 auto',
+    flex: '1 0 0',
+  },
+  
+  paper: {
+    padding: theme.spacing(2),
   },
 
   content: {
@@ -40,11 +43,13 @@ const DocumentComponent = () => {
   }
   else if (doc) {
     return(
-      <Paper className={classes.container}>
-        <Typography variant="caption">{doc.author} at {formatDate(doc.created)}</Typography>
-        {formatText(doc.content)}
-        <TagList tags={doc.tags} />
-      </Paper>
+      <Box className={classes.container}>
+        <Paper className={classes.paper}>
+          <Typography variant="caption">{doc.author} at {formatDate(doc.created)}</Typography>
+          {formatText(doc.content)}
+          <TagList tags={doc.tags} />
+        </Paper>
+      </Box>
     );
   }
 
