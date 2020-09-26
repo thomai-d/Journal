@@ -34,10 +34,10 @@ namespace Journal.Server.Controllers
         /// <response code="201">Returns the id of the newly created item</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<CreateDocumentResult>> PostAsync([FromBody]CreateDocumentParameter param)
+        public async Task<ActionResult<CreateDocumentResult>> PostAsync([FromForm]string content, [FromForm]List<IFormFile> attachments)
         {
             var doc = new Document();
-            doc.Content = param.Content;
+            doc.Content = content;
             doc.Author = this.GetUserName();
             doc.Created = DateTime.Now;
             await this.docRepo.AddAsync(doc);

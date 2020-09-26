@@ -83,8 +83,17 @@ export const getDocument = usingTokens(async (id: string): Promise<Document> => 
   throw new Error(response.statusText);
 });
 
-export const addDocument = usingTokens(async (content: string): Promise<void> => {
-  const response = await axios.post<Document[]>('api/document', { content });
+export const addDocument = usingTokens(async (content: string, attachments: File[]): Promise<void> => {
+  const formData = new FormData();
+  formData.append("Content", content);
+  attachments.forEach(file => formData.append("attachments", file));
+
+  const response = await axios.post<Document[]>('api/document', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
   if (response.status === 201) {
     return;
   }
