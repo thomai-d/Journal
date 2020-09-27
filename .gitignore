@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 *.v3.ncrunchsolution
 *.swp
+*.ncrunchproject

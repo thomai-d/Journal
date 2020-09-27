@@ -11,6 +11,10 @@ namespace Journal.Server.DataAccess
     {
         Task AddAsync(Document doc);
 
+        Task AddAsync(Document doc, Attachment[] attachments);
+
+        Task<List<Attachment>> ReadAttachmentsAsync(string author, string documentId);
+
         Task<Document> GetByIdAsync(string author, string id);
 
         Task<List<Document>> QueryAsync(string author, int limit, FilterSettings filterSettings);

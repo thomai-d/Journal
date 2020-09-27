@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Journal.Server.Controllers;
 using Journal.Server.Controllers.ApiModel;
 using Journal.Server.DataAccess;
 using Journal.Server.Model;
 using Journal.Server.Services.Authentication;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -52,7 +49,7 @@ namespace Journal.Server.IntegrationTests
             var docRepo = this.GetService<IDocumentRepository>();
             foreach (var doc in documents)
             {
-                await docRepo.AddAsync(doc);
+                await docRepo.AddAsync(doc, Array.Empty<Attachment>());
             }
         }
 

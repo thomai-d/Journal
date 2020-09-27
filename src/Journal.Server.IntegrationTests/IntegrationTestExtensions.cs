@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Newtonsoft.Json;
 
 namespace Journal.Server.IntegrationTests
@@ -32,6 +33,23 @@ namespace Journal.Server.IntegrationTests
             var obj = JsonConvert.DeserializeObject<T>(str);
             predicate(obj);
             return response;
+        }
+
+        public static async Task ShouldThrow<T>(this Task t)
+        {
+            try
+            {
+                await t;
+            }
+            catch (Exception ex)
+            {
+                if (ex.GetType() == typeof(T))
+                    return;
+
+                throw new AssertionFailedException($"Expected {typeof(T).Name} but got {ex.GetType().Name}");
+            }
+
+            throw new AssertionFailedException($"Expected {typeof(T).Name} but no exception was thrown");
         }
     }
 }

@@ -97,6 +97,44 @@ namespace Journal.Server.IntegrationTests.Mongo
         }
 
         [Fact]
+        public async Task Read_Attachment_As_NonAuthor_Fails()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+            await target.DeleteAllDocumentsFromAuthorAsync("test");
+
+            // Write.
+            var doc = CreateValidDoc(content: "#a #b $a=1", date: "2020-07-01");
+            var attachment1 = new Attachment("test1.txt", "Hallo1");
+            var attachment2 = new Attachment("test2.txt", "Hallo2");
+            await target.AddAsync(doc, new[] { attachment1, attachment2 });
+
+            // Read.
+            await target.ReadAttachmentsAsync("not-test", doc.Id)
+                        .ShouldThrow<KeyNotFoundException>(); 
+        }
+
+        [Fact]
+        public async Task Insert_And_Read_Attachments()
+        {
+            var target = this.testHost.GetService<IDocumentRepository>();
+            await target.DeleteAllDocumentsFromAuthorAsync("test");
+
+            // Write.
+            var doc = CreateValidDoc(content: "#a #b $a=1", date: "2020-07-01");
+            var attachment1 = new Attachment("test1.txt", "Hallo1");
+            var attachment2 = new Attachment("test2.txt", "Hallo2");
+            await target.AddAsync(doc, new[] { attachment1, attachment2 });
+
+            // Read.
+            var attachments = await target.ReadAttachmentsAsync("test", doc.Id);
+            attachments.Should().HaveCount(2);
+            Encoding.UTF8.GetString(attachments[0].Content).Should().Be("Hallo1");
+            Encoding.UTF8.GetString(attachments[1].Content).Should().Be("Hallo2");
+            attachments[0].FileName.Should().Be("test1.txt");
+            attachments[1].FileName.Should().Be("test2.txt");
+        }
+
+        [Fact]
         public async Task Insert_Demo_Data()
         {
             var target = this.testHost.GetService<IDocumentRepository>();

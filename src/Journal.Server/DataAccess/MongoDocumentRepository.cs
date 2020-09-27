@@ -19,10 +19,12 @@ namespace Journal.Server.DataAccess
     public class MongoDocumentRepository : IDocumentRepository
     {
         private const string DocumentCollection = "documents";
+        private const string AttachmentCollection = "attachments";
 
         private readonly MongoClient client;
         private readonly IMongoDatabase database;
-        private readonly IMongoCollection<Document> documents;
+        private readonly IMongoCollection<Document> documentCollection;
+        private readonly IMongoCollection<Attachment> attachmentCollection;
         private readonly ILogger<MongoDocumentRepository> logger;
 
         private readonly FilterDefinitionBuilder<Document> filterBuilder = new FilterDefinitionBuilder<Document>();
@@ -48,17 +50,44 @@ namespace Journal.Server.DataAccess
 
             this.client = new MongoClient(settings);
             this.database = client.GetDatabase(config.Database);
-            this.documents = database.GetCollection<Document>(DocumentCollection);
+            this.documentCollection = database.GetCollection<Document>(DocumentCollection);
+            this.attachmentCollection = database.GetCollection<Attachment>(AttachmentCollection);
             this.logger = logger;
         }
 
-        public async Task AddAsync(Document doc)
+        public Task AddAsync(Document doc)
+        {
+            return this.AddAsync(doc, Array.Empty<Attachment>());
+        }
+
+        public async Task<List<Attachment>> ReadAttachmentsAsync(string author, string documentId)
+        {
+            var document = await this.documentCollection.Find(doc => doc.Id == documentId && doc.Author == author)
+                                                  .SingleOrDefaultAsync();
+
+            if (document == null)
+                throw new KeyNotFoundException($"Document {documentId} is not valid");
+
+            return await this.attachmentCollection.Find(att => att.DocumentId == document.Id)
+                                                  .ToListAsync();
+        }
+
+        public async Task AddAsync(Document doc, Attachment[] attachments)
         {
             doc.Validate();
             doc.RebuildTags();
             doc.RebuildValues();
-            await this.documents.InsertOneAsync(doc);
+            await this.documentCollection.InsertOneAsync(doc);
             this.logger.LogInformation("Added document {docid}", doc.Id);
+
+            if (attachments.Length > 0)
+            {
+                foreach (var attachment in attachments)
+                    attachment.DocumentId = doc.Id;
+
+                await this.attachmentCollection.InsertManyAsync(attachments);
+                this.logger.LogInformation("Added {attachments} for document {docid}", attachments.Length, doc.Id);
+            }
         }
 
         public async Task<List<Document>> QueryAsync(string author, int limit, FilterSettings filterSettings)
@@ -84,8 +113,17 @@ namespace Journal.Server.DataAccess
 
         public async Task DeleteAllDocumentsFromAuthorAsync(string author)
         {
-            var builder = new FilterDefinitionBuilder<Document>();
-            await this.documents.DeleteManyAsync(builder.Empty);
+            var documentIds = await this.documentCollection.Find(doc => doc.Author == author)
+                                                           .Project(doc => doc.Id)
+                                                           .ToListAsync();
+            var docBuilder = new FilterDefinitionBuilder<Document>();
+            var attachmentBuilder = new FilterDefinitionBuilder<Attachment>();
+            foreach (var documentId in documentIds)
+            {
+                var filter = attachmentBuilder.Where(a => a.DocumentId == documentId);
+                await this.attachmentCollection.DeleteManyAsync(filter);
+                await this.documentCollection.DeleteOneAsync(doc => doc.Id == documentId);
+            }
         }
 
         public async Task<List<ValuesResult>> AggregateValuesAsync(string author, GroupTimeRange groupTimeRange, Aggregate aggregation, FilterSettings filterSettings)
@@ -136,7 +174,7 @@ namespace Journal.Server.DataAccess
                 };
 
             var watch = Stopwatch.StartNew();
-            var aggregateResult = this.documents.Aggregate()
+            var aggregateResult = this.documentCollection.Aggregate()
                                     .Match(this.BuildMatchStage(author, filterSettings))
                                     .Project(projectStage)
                                     .Unwind("values")
@@ -174,7 +212,7 @@ namespace Journal.Server.DataAccess
                                              };
 
             var watch = Stopwatch.StartNew();
-            var aggregateResult = this.documents.Aggregate()
+            var aggregateResult = this.documentCollection.Aggregate()
                                     .Match(this.BuildMatchStage(author, filterSettings))
                                     .Group(MongoOp.GroupByDate("$Created", groupTimeRange, MongoOp.Count("count")))
                                     .Project(projectStage)
@@ -197,7 +235,7 @@ namespace Journal.Server.DataAccess
         {
             var watch = Stopwatch.StartNew();
             var opt = new FindOptions<Document> { Limit = limit };
-            var cursor = await this.documents.FindAsync(filter, opt);
+            var cursor = await this.documentCollection.FindAsync(filter, opt);
             var result = await cursor.ToListAsync();
             watch.Stop();
 
