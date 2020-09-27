@@ -73,7 +73,7 @@ namespace Journal.Server.DataAccess
             if (!ObjectId.TryParse(id, out var idObj))
                 throw new KeyNotFoundException($"ObjectId {id} is not valid");
 
-            var docs = await this.GetDocumentsAsync(this.filterBuilder.Where(doc => doc.Id == id), limit: 2);
+            var docs = await this.GetDocumentsAsync(this.filterBuilder.Where(doc => doc.Id == id && doc.Author == author), limit: 2);
             if (docs.Count != 1)
                 throw new KeyNotFoundException($"{id} does not exist in {DocumentCollection}");
 

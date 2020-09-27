@@ -25,7 +25,7 @@ namespace Journal.Server.IntegrationTests.Api
         public async Task Insert_Document_Should_Be_Persisted()
         {
             await this.testHost.LoginAsync();
-            var response = await this.testHost.PostAsync("/api/document", new 
+            var response = await this.testHost.PostFormAsync("/api/document", new 
             {
                 Content = "Hallo das ist ein #Test"
             });
@@ -81,7 +81,7 @@ namespace Journal.Server.IntegrationTests.Api
         {
             await this.testHost.LoginAsync();
 
-            var createdResult = await this.testHost.PostAsync("/api/document", new
+            var createdResult = await this.testHost.PostFormAsync("/api/document", new
             {
                 Content = "Hallo i bims 1 content"
             });
@@ -113,9 +113,9 @@ namespace Journal.Server.IntegrationTests.Api
             var docRepo = this.testHost.GetService<IDocumentRepository>();
             await docRepo.DeleteAllDocumentsFromAuthorAsync("test");
 
-            await this.testHost.PostAsync("/api/document", new { Content = "Hallo #läuft?" });
-            await this.testHost.PostAsync("/api/document", new { Content = "#a #b #c?" });
-            await this.testHost.PostAsync("/api/document", new { Content = "#b #c #a!" });
+            await this.testHost.PostFormAsync("/api/document", new { Content = "Hallo #läuft?" });
+            await this.testHost.PostFormAsync("/api/document", new { Content = "#a #b #c?" });
+            await this.testHost.PostFormAsync("/api/document", new { Content = "#b #c #a!" });
 
             var q1 = await this.testHost.PostAndGetAsync<Document[]>("/api/document/query", new { Filter = "a b c" });
             q1.Should().HaveCount(2);

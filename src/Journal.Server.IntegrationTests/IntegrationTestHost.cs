@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,6 +69,19 @@ namespace Journal.Server.IntegrationTests
             var response = await this.PostAsync(path, data);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(json);
+        }
+
+        public async Task<HttpResponseMessage> PostFormAsync(string path, object data)
+        {
+            var content = new MultipartFormDataContent();
+            var parts = data.GetType().GetProperties()
+                                      .Select(prop => new { prop.Name, Data = prop.GetValue(data) });
+            foreach (var part in parts)
+            {
+                content.Add(new StringContent(part.Data.ToString()), part.Name);
+            }
+
+            return await this.Client.PostAsync(path, content);
         }
 
         public async Task<HttpResponseMessage> PostAsync(string path, object data)
