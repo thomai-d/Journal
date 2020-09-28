@@ -36,7 +36,7 @@ namespace Journal.Server.IntegrationTests.Mongo
 
             await target.AddAsync(doc);
 
-            var result = await target.GetByIdAsync("test", doc.Id.ToString());
+            var result = await target.GetDocumentByIdAsync("test", doc.Id.ToString());
             result.Content.Should().Be(doc.Content);
             result.Tags.Should().BeEquivalentTo("Hallo");
             result.Created.Should().BeCloseTo(doc.Created);
@@ -47,9 +47,7 @@ namespace Journal.Server.IntegrationTests.Mongo
         {
             var target = this.testHost.GetService<IDocumentRepository>();
 
-            var doc = new Document
-            {
-            };
+            var doc = new Document();
 
             Func<Task> act = async () => { await target.AddAsync(doc); };
             await act.Should().ThrowAsync<ValidationException>();
@@ -97,19 +95,21 @@ namespace Journal.Server.IntegrationTests.Mongo
         }
 
         [Fact]
-        public async Task Read_Attachment_As_NonAuthor_Fails()
+        public async Task Read_Attachments_As_NonAuthor_Fails()
         {
             var target = this.testHost.GetService<IDocumentRepository>();
             await target.DeleteAllDocumentsFromAuthorAsync("test");
 
             // Write.
             var doc = CreateValidDoc(content: "#a #b $a=1", date: "2020-07-01");
-            var attachment1 = new Attachment("test1.txt", "Hallo1");
-            var attachment2 = new Attachment("test2.txt", "Hallo2");
+            var attachment1 = new Attachment("test1.txt", "Hallo1", "application/text");
+            var attachment2 = new Attachment("test2.txt", "Hallo2", "application/text");
             await target.AddAsync(doc, new[] { attachment1, attachment2 });
 
             // Read.
             await target.ReadAttachmentsAsync("not-test", doc.Id)
+                        .ShouldThrow<KeyNotFoundException>(); 
+            await target.ReadAttachmentAsync("not-test", doc.Id, attachment1.Id)
                         .ShouldThrow<KeyNotFoundException>(); 
         }
 
@@ -121,33 +121,29 @@ namespace Journal.Server.IntegrationTests.Mongo
 
             // Write.
             var doc = CreateValidDoc(content: "#a #b $a=1", date: "2020-07-01");
-            var attachment1 = new Attachment("test1.txt", "Hallo1");
-            var attachment2 = new Attachment("test2.txt", "Hallo2");
+            var attachment1 = new Attachment("test1.txt", "Hallo1", "application/text");
+            var attachment2 = new Attachment("test2.txt", "Hallo2", "application/text");
             await target.AddAsync(doc, new[] { attachment1, attachment2 });
 
-            // Read.
+            // Read document.
+            var readDoc = await target.GetDocumentByIdAsync("test", doc.Id);
+            readDoc.Attachments.Should().HaveCount(2);
+            readDoc.Attachments[0].FileName.Should().Be("test1.txt");
+            readDoc.Attachments[1].FileName.Should().Be("test2.txt");
+
+            // Read attachments (multiple).
             var attachments = await target.ReadAttachmentsAsync("test", doc.Id);
             attachments.Should().HaveCount(2);
             Encoding.UTF8.GetString(attachments[0].Content).Should().Be("Hallo1");
             Encoding.UTF8.GetString(attachments[1].Content).Should().Be("Hallo2");
             attachments[0].FileName.Should().Be("test1.txt");
             attachments[1].FileName.Should().Be("test2.txt");
-        }
 
-        [Fact]
-        public async Task Insert_Demo_Data()
-        {
-            var target = this.testHost.GetService<IDocumentRepository>();
-            await target.DeleteAllDocumentsFromAuthorAsync("test");
-
-            await target.AddAsync(CreateValidDoc(content: "#a #b $a=1", date: "2020-07-01"));
-            await target.AddAsync(CreateValidDoc(content: "#a #b $a=2", date: "2020-07-02"));
-            await target.AddAsync(CreateValidDoc(content: "#a #b $a=3", date: "2020-07-03"));
-            await target.AddAsync(CreateValidDoc(content: "#a #b $a=4", date: "2020-07-04"));
-            await target.AddAsync(CreateValidDoc(content: "#a #b $a=3", date: "2020-07-05"));
-            await target.AddAsync(CreateValidDoc(content: "#a #b $a=2", date: "2020-07-06"));
-            await target.AddAsync(CreateValidDoc(content: "#a #b $a=1", date: "2020-07-07"));
-            await target.AddAsync(CreateValidDoc(content: "#a #b $a=0", date: "2020-07-08"));
+            // Read attachment (single).
+            var att = await target.ReadAttachmentAsync("test", doc.Id, attachment1.Id);
+            att.Author.Should().Be("test");
+            att.FileName.Should().Be("test1.txt");
+            Encoding.UTF8.GetString(att.Content).Should().Be("Hallo1");
         }
 
         [Fact]

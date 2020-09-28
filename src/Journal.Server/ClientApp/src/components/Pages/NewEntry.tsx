@@ -15,7 +15,9 @@ const styles = (theme: Theme) => createStyles({
   form: {
     margin: theme.spacing(0.5),
     flex: '1 0 0',
-    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
   },
 
   fab: {
@@ -24,7 +26,13 @@ const styles = (theme: Theme) => createStyles({
 
   text: {
     marginBottom: theme.spacing(1),
+    overflow: 'auto',
+    flex: '1 0 0',
   },
+
+  images: {
+    flex: '0 0 auto',
+  }
 });
 
 const dispatchToProps = (dispatch: Dispatch<AnyAction>) =>
@@ -68,7 +76,7 @@ class NewEntry extends React.Component<Props, State> {
           <form ref={this.formRef} noValidate autoComplete="off" className={classes.form} onSubmit={this.onSubmit}>
             <TextField className={classes.text} multiline autoFocus name="content" variant="outlined" fullWidth />
 
-            <ImageUploadList images={this.state.images} onImageAdded={this.onImageAdded} />
+            <ImageUploadList className={classes.images} images={this.state.images} onImageAdded={this.onImageAdded} />
 
           </form>
         </HotkeyListener>

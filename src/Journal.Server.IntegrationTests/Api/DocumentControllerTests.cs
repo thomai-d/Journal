@@ -9,6 +9,7 @@ using Journal.Server.DataAccess;
 using Journal.Server.Model;
 using Microsoft.AspNetCore.Mvc.Core.Infrastructure;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Journal.Server.IntegrationTests.Api
 {
@@ -44,7 +45,7 @@ namespace Journal.Server.IntegrationTests.Api
 
             // Document properties should have been set.
             var docRepo = this.testHost.GetService<IDocumentRepository>();
-            var persistedDoc = await docRepo.GetByIdAsync("test", objId);
+            var persistedDoc = await docRepo.GetDocumentByIdAsync("test", objId);
             persistedDoc.Content.Should().Be("Hallo das ist ein #Test");
             persistedDoc.Author.Should().Be("test");
             persistedDoc.Created.Should().BeCloseTo(DateTime.Now, 1000);
@@ -91,6 +92,33 @@ namespace Journal.Server.IntegrationTests.Api
             loadedDoc.Author.Should().Be("test");
             loadedDoc.Created.Should().BeCloseTo(DateTime.Now, 1000);
         }
+
+        [Fact]
+        public async Task Attachment_Post_And_Get_Test()
+        {
+            await this.testHost.LoginAsync();
+
+            var createdResult = await this.testHost.PostDocumentAsync(new
+            {
+                Content = "Hallo i bims 1 content",
+                AttachmentA = "Hallo i bims 1 datei",
+            });
+
+            // Read document.
+            var documentId = createdResult.Id;
+            var document = await this.testHost.GetAsync<Document>($"/api/document/{documentId}");
+            var attachment = document.Attachments.Single();
+
+            // Verify attachment content.
+            var attachmentData = await this.testHost.Client.GetAsync($"/api/document/{documentId}/attachment/{attachment.Id}");
+            var content = await attachmentData.Content.ReadAsStringAsync();
+            content.Should().Be("Hallo i bims 1 datei");
+
+            // Verify attachments cannot be read unauthorized.
+            this.testHost.Logout();
+            (await this.testHost.Client.GetAsync($"/api/document/{documentId}/attachment/{attachment.Id}"))
+                    .StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
         
         [Fact]
         public async Task Get_Endpoint_Requires_Authentication()
@@ -102,7 +130,7 @@ namespace Journal.Server.IntegrationTests.Api
         [Fact]
         public async Task Post_Endpoint_Requires_Authentication()
         {
-            var response = await this.testHost.Client.PostAsync("/api/document", new StringContent("{ Content = \"Hallo\" }"));
+            var response = await this.testHost.PostFormAsync("/api/document", new { Content = "Hallo" });
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
         

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Journal.Server.Controllers.ApiModel;
@@ -40,8 +41,15 @@ namespace Journal.Server.Controllers
             doc.Content = content;
             doc.Author = this.GetUserName();
             doc.Created = DateTime.Now;
-            await this.docRepo.AddAsync(doc);
-            this.logger.LogInformation("{user} created a new document: {documentId}", doc.Author, doc.Id.ToString());
+
+            var convertTasks = attachments
+                                 .Select(async file => new Attachment(file.FileName, await file.GetBytesAsync(), file.ContentType))
+                                 .ToArray();
+
+            var attachmentData = await Task.WhenAll(convertTasks);
+
+            await this.docRepo.AddAsync(doc, attachmentData);
+            this.logger.LogInformation("{user} created a new document {documentId} with {attachmentCount} attachments", doc.Author, doc.Id.ToString(), attachmentData.Length.ToString());
 
             var url = $"/api/document/{doc.Id}";
             return this.Created(url, new CreateDocumentResult(doc.Id.ToString()));
@@ -58,11 +66,32 @@ namespace Journal.Server.Controllers
 
             try
             {
-                return await this.docRepo.GetByIdAsync(username, id);
+                return await this.docRepo.GetDocumentByIdAsync(username, id);
             }
             catch (KeyNotFoundException)
             {
                 this.logger.LogWarning("{user} requested nonexisting document {documentId}", username, id);
+                return this.NotFound();
+            }
+        }
+        
+        /// <summary>
+        /// Get an attachment by it's id.
+        /// </summary>
+        /// <response code="200">Returns the document</response>
+        [HttpGet("{documentId}/attachment/{attachmentId}")]
+        public async Task<ActionResult<byte[]>> GetAsync(string documentId, string attachmentId)
+        {
+            var username = this.GetUserName();
+
+            try
+            {
+                var attachment = await this.docRepo.ReadAttachmentAsync(username, documentId, attachmentId);
+                return this.File(attachment.Content, attachment.ContentType);
+            }
+            catch (KeyNotFoundException)
+            {
+                this.logger.LogWarning("{user} requested nonexisting attachment {attachmentId} for document {documentId}", username, attachmentId, documentId);
                 return this.NotFound();
             }
         }

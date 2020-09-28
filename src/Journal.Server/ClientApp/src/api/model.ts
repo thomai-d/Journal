@@ -1,12 +1,18 @@
 export type NumberDict = { [key: string]: number };
 
 export interface Document {
-      id: string,
-      author: string,
-      content: string,
-      tags: string[],
-      values: NumberDict,
-      created: string
+  id: string;
+  author: string;
+  content: string;
+  tags: string[];
+  values: NumberDict;
+  created: string;
+  attachments: AttachmentPreview[];
+}
+
+export interface AttachmentPreview {
+  id: string;
+  fileName: string;
 }
 
 export type GroupByTime = 'day' | 'week' | 'month' | 'year';
@@ -31,8 +37,4 @@ export interface YearValue {
 export interface ValuesResult {
   key: string;
   values: { [key: string]: number };
-}
-
-export interface ExploreResult {
-
 }

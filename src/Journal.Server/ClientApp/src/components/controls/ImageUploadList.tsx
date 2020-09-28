@@ -39,6 +39,7 @@ const useStyle = makeStyles((theme: Theme) => ({
 type Props = {
   images: UploadedImage[],
   onImageAdded: (image: UploadedImage) => void,
+  className?: string,
 };
 
 export default (props: Props) => {
@@ -58,7 +59,7 @@ export default (props: Props) => {
   }
 
   return (<>
-    <Box className={classes.container}>
+    <Box className={`${classes.container} ${props.className ?? ''}`}>
 
       {props.images.map(img => (
         <Box className={classes.border}>

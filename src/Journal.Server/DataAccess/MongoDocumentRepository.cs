@@ -72,6 +72,16 @@ namespace Journal.Server.DataAccess
                                                   .ToListAsync();
         }
 
+        public async Task<Attachment> ReadAttachmentAsync(string author, string documentId, string attachmentId)
+        {
+            var attachment = await this.attachmentCollection.Find(att => att.DocumentId == documentId && att.Id == attachmentId && att.Author == author)
+                                                  .SingleOrDefaultAsync();
+            if (attachment == null)
+                throw new KeyNotFoundException($"Attachment {attachmentId} is not valid.");
+
+            return attachment;
+        }
+
         public async Task AddAsync(Document doc, Attachment[] attachments)
         {
             doc.Validate();
@@ -83,7 +93,10 @@ namespace Journal.Server.DataAccess
             if (attachments.Length > 0)
             {
                 foreach (var attachment in attachments)
+                {
                     attachment.DocumentId = doc.Id;
+                    attachment.Author = doc.Author;
+                }
 
                 await this.attachmentCollection.InsertManyAsync(attachments);
                 this.logger.LogInformation("Added {attachments} for document {docid}", attachments.Length, doc.Id);
@@ -97,7 +110,7 @@ namespace Journal.Server.DataAccess
             return doc.OrderByDescending(d => d.Created).ToList();
         }
 
-        public async Task<Document> GetByIdAsync(string author, string id)
+        public async Task<Document> GetDocumentByIdAsync(string author, string id)
         {
             if (!ObjectId.TryParse(id, out var idObj))
                 throw new KeyNotFoundException($"ObjectId {id} is not valid");
@@ -106,8 +119,12 @@ namespace Journal.Server.DataAccess
             if (docs.Count != 1)
                 throw new KeyNotFoundException($"{id} does not exist in {DocumentCollection}");
 
+            var attachments = await this.attachmentCollection.Find(a => a.DocumentId == id)
+                                                             .Project(a => new AttachmentPreview(a.Id, a.FileName))
+                                                             .ToListAsync();
             var doc = docs.Single();
             doc.Created = doc.Created.ToLocalTime();
+            doc.Attachments = attachments;
             return doc;
         }
 

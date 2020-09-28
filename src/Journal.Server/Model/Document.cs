@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -12,6 +11,9 @@ using Newtonsoft.Json;
 
 namespace Journal.Server.Model
 {
+    /// <summary>
+    /// Represents a single document.
+    /// </summary>
     public class Document
     {
         public Document()
@@ -29,20 +31,40 @@ namespace Journal.Server.Model
         [JsonProperty(Required = Required.DisallowNull)]
         public string Id { get; set; }
 
+        /// <summary>
+        /// Gets or sets the document's author. This property is set by the controller to the user's name and must never change.
+        /// </summary>
         [JsonProperty(Required = Required.DisallowNull)]
         public string Author { get; set; }
 
+        /// <summary>
+        /// Gets or sets the document's content.
+        /// </summary>
         [JsonProperty(Required = Required.DisallowNull)]
         public string Content { get; set; }
 
+        /// <summary>
+        /// Gets or sets the document's tags used for fast searching (indexed).
+        /// </summary>
         [JsonProperty(Required = Required.DisallowNull)]
         public List<string> Tags { get; set; } = new List<string>();
         
+        /// <summary>
+        /// Gets or sets the document's values.
+        /// </summary>
         [JsonProperty(Required = Required.DisallowNull)]
         public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
 
+        /// <summary>
+        /// Gets or sets the document's creation date. This property is set by the controller upon creation and must never change.
+        /// </summary>
         [JsonProperty(Required = Required.DisallowNull)]
         public DateTime Created { get; set; }
+
+        /// <summary>
+        /// Gets attachments. This list is only filled when rehydrated from the database.
+        /// </summary>
+        public List<AttachmentPreview> Attachments { get; set; } = new List<AttachmentPreview>();
 
         public void Validate()
         {

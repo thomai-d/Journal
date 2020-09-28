@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,6 +69,15 @@ namespace Journal.Server.IntegrationTests
             return JsonConvert.DeserializeObject<T>(json);
         }
 
+        public async Task<CreateDocumentResult> PostDocumentAsync(object document)
+        {
+            var postResult = await this.PostFormAsync("/api/document", document);
+            postResult.StatusCode.Should().Be(HttpStatusCode.Created);
+
+            var result = await postResult.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<CreateDocumentResult>(result);
+        }
+
         public async Task<HttpResponseMessage> PostFormAsync(string path, object data)
         {
             var content = new MultipartFormDataContent();
@@ -75,7 +85,12 @@ namespace Journal.Server.IntegrationTests
                                       .Select(prop => new { prop.Name, Data = prop.GetValue(data) });
             foreach (var part in parts)
             {
-                content.Add(new StringContent(part.Data.ToString()), part.Name);
+                if (part.Name.StartsWith("Attachment"))
+                    content.Add(new StringContent(part.Data.ToString()), "Attachments", part.Name + ".txt");
+                if (part.Data.GetType() == typeof(string))
+                    content.Add(new StringContent(part.Data.ToString()), part.Name);
+                else
+                    throw new InvalidOperationException($"Don't know how to handle {part.Data.GetType()}");
             }
 
             return await this.Client.PostAsync(path, content);

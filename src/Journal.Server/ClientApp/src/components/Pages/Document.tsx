@@ -7,16 +7,28 @@ import { Document } from '../../api';
 import Warning from '../controls/Warning';
 import TagList from '../controls/TagList';
 import Centered from '../controls/Centered';
+import ImagePreview from '../controls/ImagePreview';
 import { formatDate, formatText } from '../../util/formatters';
 
 const useStyle = makeStyles((theme: Theme) => ({
   container: {
-    overflow: 'auto',
     flex: '1 0 0',
+    display: 'flex',
+    flexDirection: 'column',
   },
   
-  paper: {
+  textContainer: {
+    flex: '1 0 0',
     padding: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+    overflow: 'auto',
+  },
+  
+  attachmentContainer: {
+    flex: '0 0 auto',
+    padding: theme.spacing(2),
+    display: 'flex',
+    flexWrap: 'wrap',
   },
 
   content: {
@@ -44,10 +56,18 @@ const DocumentComponent = () => {
   else if (doc) {
     return(
       <Box className={classes.container}>
-        <Paper className={classes.paper}>
+        <Paper className={classes.textContainer}>
           <Typography variant="caption">{doc.author} at {formatDate(doc.created)}</Typography>
           {formatText(doc.content)}
           <TagList tags={doc.tags} />
+        </Paper>
+
+        <Paper className={classes.attachmentContainer}>
+          {doc.attachments.map(a => (
+            <ImagePreview key={a.id} url={`/api/document/${doc.id}/attachment/${a.id}`}
+                          width={128} height={128} />
+
+          ))}
         </Paper>
       </Box>
     );
